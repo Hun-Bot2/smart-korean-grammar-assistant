@@ -2,20 +2,29 @@
   "name": "smart-korean-grammar-assistant",
   "displayName": "Smart Korean Grammar Assistant",
   "publisher": "Hun-Bot",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.75.0"
   },
-  "description": "VS Code extension to check Korean grammar, spelling, and spacing using the Bareun NLP engine.",
+  "description": "Real-time Korean grammar, spelling, and spacing checker for Markdown files using Bareun NLP API",
   "main": "./out/extension.js",
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1E1E1E",
+    "theme": "dark"
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "prepare": "npm run compile",
-    "test": "NODE_NO_WARNINGS=1 mocha -r ts-node/register --project tsconfig.test.json tests/**/*.test.ts --timeout 10000"
+    "test": "NODE_NO_WARNINGS=1 mocha -r ts-node/register --project tsconfig.test.json tests/**/*.test.ts --timeout 10000",
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
-  "author": "",
+  "author": {
+    "name": "Hun-Bot"
+  },
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.0.0",

@@ -31,5 +31,9 @@ specs/**
 !README.md
 !CHANGELOG.md
 !LICENSE
+!PUBLISHING.md
 *.log
 .DS_Store
+*.svg
+tsconfig.test.json
+bareun_korean_grammer_checker.png
