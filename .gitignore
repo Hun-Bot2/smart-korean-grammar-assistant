@@ -50,3 +50,6 @@ coverage/
 *.swo
 *~
 .cache/
+
+
+test.md
