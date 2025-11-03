@@ -12,6 +12,10 @@ export type BareunIssue = {
 export class BareunClient {
   static async analyze(endpoint: string, apiKey: string | undefined, text: string): Promise<BareunIssue[]> {
     if (!endpoint) return [];
+    if (!apiKey) {
+      console.warn('Bareun API key not configured, using local heuristics');
+      return [];
+    }
 
     try {
       const url = new URL(endpoint);
@@ -20,12 +24,12 @@ export class BareunClient {
       const opts: https.RequestOptions = {
         method: 'POST',
         hostname: url.hostname,
-        path: url.pathname + (url.search || ''),
-        port: url.port ? parseInt(url.port) : undefined,
+        path: url.pathname,
+        port: 443,
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(payload).toString(),
-          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {})
+          'api-key': apiKey,
+          'Content-Length': Buffer.byteLength(payload).toString()
         }
       };
 
@@ -35,28 +39,55 @@ export class BareunClient {
           res.setEncoding('utf8');
           res.on('data', (chunk) => (data += chunk));
           res.on('end', () => {
+            if (res.statusCode !== 200) {
+              console.error(`Bareun API error: ${res.statusCode} - ${data}`);
+              resolve([]);
+              return;
+            }
+            
             try {
               const json = JSON.parse(data);
-              // Expecting json.issues[] with start/end/message/suggestion/severity
-              const issues = (json.issues || []).map((i: any) => ({
-                start: i.start ?? 0,
-                end: i.end ?? 0,
-                message: i.message ?? i.msg ?? '문장 오류',
-                suggestion: i.suggestion || i.fix || undefined,
-                severity: i.severity || 'warning'
-              }));
+              // Parse Bareun API response format
+              const issues: BareunIssue[] = [];
+              
+              // Bareun may return errors/corrections in different formats
+              // Adjust this based on actual API response
+              if (json.errors && Array.isArray(json.errors)) {
+                json.errors.forEach((err: any) => {
+                  issues.push({
+                    start: err.start ?? err.begin ?? 0,
+                    end: err.end ?? err.start + (err.length || 1),
+                    message: err.message || err.help || '문법 오류',
+                    suggestion: err.replacement || err.correction || undefined,
+                    severity: err.type === 'error' ? 'error' : 'warning'
+                  });
+                });
+              }
+              
               resolve(issues);
             } catch (err) {
-              reject(err);
+              console.error('Failed to parse Bareun response:', err);
+              resolve([]);
             }
           });
         });
 
-        req.on('error', (e) => reject(e));
+        req.on('error', (e) => {
+          console.error('Bareun API request failed:', e);
+          resolve([]);
+        });
+        
+        req.setTimeout(5000, () => {
+          req.destroy();
+          console.error('Bareun API timeout');
+          resolve([]);
+        });
+
         req.write(payload);
         req.end();
       });
     } catch (err) {
+      console.error('Bareun client error:', err);
       return [];
     }
   }
