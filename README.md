@@ -2,6 +2,19 @@
 
 VS Code extension that checks Korean grammar, spelling, and spacing using the Bareun NLP engine (cloud/local) and provides inline diagnostics, hover explanations, and quick fixes for Markdown documents.
 
+## Installation
+
+### From VS Code Marketplace
+1. Open VS Code
+2. Go to Extensions (`Cmd+Shift+X` or `Ctrl+Shift+X`)
+3. Search for "Smart Korean Grammar Assistant"
+4. Click Install
+
+### From VSIX file
+```bash
+code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
+```
+
 ## Features
 
 - **Inline Grammar Checks**: Underlines grammar/spelling/spacing issues in Markdown files

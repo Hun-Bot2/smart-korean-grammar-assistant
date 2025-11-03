@@ -4,7 +4,7 @@ All notable changes to the Smart Korean Grammar Assistant extension will be docu
 
 Smart Korean Grammar Assistant 확장 프로그램의 모든 주요 변경 사항이 이 파일에 기록됩니다.
 
-## [Unreleased]
+## [1.0.0] - 2025-11-03
 
 ### Added | 추가됨
 - **User Story 1: Inline Grammar Checks | 인라인 문법 검사**
@@ -65,14 +65,9 @@ Smart Korean Grammar Assistant 확장 프로그램의 모든 주요 변경 사�
 - Category-based severity mapping (TYPO → error, others → warning)
 - 카테고리 기반 심각도 매핑 (TYPO → 오류, 기타 → 경고)
 
-## [0.0.1] - 2025-11-03
+### Removed | 제거됨
+- Debug console.log statements for production readiness
+- 프로덕션 준비를 위한 디버그 console.log 문
 
-### Added | 추가됨
-- Initial scaffold and project structure
-- 초기 스캐폴드 및 프로젝트 구조
-
-- Foundation for VS Code extension with TypeScript
-- TypeScript를 사용한 VS Code 확장 프로그램 기반
-
-- Basic diagnostic collection and code action providers
-- 기본 진단 수집 및 코드 액션 제공자
+- Development SSL certificate bypass (rejectUnauthorized: false)
+- 개발용 SSL 인증서 우회 (rejectUnauthorized: false)
