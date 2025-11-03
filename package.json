@@ -58,6 +58,14 @@
           "type": "boolean",
           "default": true,
           "description": "Enable Smart Korean Grammar Assistant diagnostics"
+        },
+        "skga.includePaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["**/*.md"],
+          "description": "Glob patterns for files to analyze (e.g., ['content/blog/**/*.md']). Empty array means all .md files."
         }
       }
     },
@@ -65,6 +73,10 @@
       {
         "command": "skga.openSettings",
         "title": "Korean Grammar: 설정 열기"
+      },
+      {
+        "command": "skga.debugStatus",
+        "title": "Korean Grammar: Debug Status"
       },
       {
         "command": "skga.toggleEnabled",
