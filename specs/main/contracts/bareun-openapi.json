@@ -1,0 +1,57 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Bareun Analyze API (contract)",
+    "version": "1.0.0",
+    "description": "Minimal contract describing the expected analyze endpoint used by SKGA"
+  },
+  "paths": {
+    "/analyze": {
+      "post": {
+        "summary": "Analyze text and return issues",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": { "type": "string" }
+                },
+                "required": ["text"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Analysis result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "issues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "start": { "type": "integer" },
+                          "end": { "type": "integer" },
+                          "message": { "type": "string" },
+                          "suggestion": { "type": "string" },
+                          "severity": { "type": "string", "enum": ["error","warning","info"] }
+                        },
+                        "required": ["start","end","message"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

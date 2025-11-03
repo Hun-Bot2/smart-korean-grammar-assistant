@@ -1,0 +1,35 @@
+# Files to exclude from the VS Code extension package (.vsix)
+
+## Source files
+src/**
+tsconfig.json
+.eslintrc.*
+.prettierrc.*
+
+## Tests
+tests/**
+*.test.ts
+*.spec.ts
+
+## Build & Dev
+node_modules/**
+.vscode/**
+.vscode-test/**
+.github/**
+
+## Specs & Planning
+specs/**
+.specify/**
+
+## Git
+.git/**
+.gitignore
+.gitattributes
+
+## Misc
+*.md
+!README.md
+!CHANGELOG.md
+!LICENSE
+*.log
+.DS_Store

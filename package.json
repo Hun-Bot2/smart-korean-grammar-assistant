@@ -1,0 +1,82 @@
+{
+  "name": "smart-korean-grammar-assistant",
+  "displayName": "Smart Korean Grammar Assistant",
+  "publisher": "Hun-Bot",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "description": "VS Code extension to check Korean grammar, spelling, and spacing using the Bareun NLP engine.",
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "prepare": "npm run compile",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts --timeout 10000"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.75.0",
+    "@vscode/test-electron": "^2.0.0",
+    "mocha": "^10.0.0",
+    "@types/mocha": "^10.0.0",
+    "chai": "^4.3.0",
+    "@types/chai": "^4.3.0",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {},
+  "contributes": {
+    "configuration": {
+      "title": "Smart Korean Grammar Assistant",
+      "properties": {
+        "skga.bareun.endpoint": {
+          "type": "string",
+          "default": "",
+          "description": "Bareun NLP endpoint (e.g. https://api.bareun.ai/analyze). Leave empty to use local heuristics."
+        },
+        "skga.bareun.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for Bareun cloud service (optional)."
+        },
+        "skga.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Smart Korean Grammar Assistant diagnostics"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "skga.openSettings",
+        "title": "Smart Korean Grammar Assistant: Open Settings"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onLanguage:markdown",
+    "onStartupFinished"
+  ],
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "korean",
+    "grammar",
+    "spell-check",
+    "markdown",
+    "bareun"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hun-Bot2/smart-korean-grammar-assistant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hun-Bot2/smart-korean-grammar-assistant/issues"
+  }
+}
