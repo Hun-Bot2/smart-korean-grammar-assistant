@@ -19,7 +19,14 @@ export class BareunClient {
 
     try {
       const url = new URL(endpoint);
-      const payload = JSON.stringify({ text });
+      // Bareun API request format
+      const payload = JSON.stringify({
+        document: {
+          content: text,
+          language: "ko-KR"
+        },
+        encoding_type: "UTF32"
+      });
 
       const opts: https.RequestOptions = {
         method: 'POST',
@@ -30,7 +37,8 @@ export class BareunClient {
           'Content-Type': 'application/json',
           'api-key': apiKey,
           'Content-Length': Buffer.byteLength(payload).toString()
-        }
+        },
+        rejectUnauthorized: false  // SSL 인증서 검증 비활성화 (개발용)
       };
 
       return await new Promise<BareunIssue[]>((resolve, reject) => {
@@ -45,25 +53,32 @@ export class BareunClient {
               return;
             }
             
+            console.log('Bareun API response:', data); // 디버깅용
+            
             try {
               const json = JSON.parse(data);
-              // Parse Bareun API response format
               const issues: BareunIssue[] = [];
               
-              // Bareun may return errors/corrections in different formats
-              // Adjust this based on actual API response
-              if (json.errors && Array.isArray(json.errors)) {
-                json.errors.forEach((err: any) => {
-                  issues.push({
-                    start: err.start ?? err.begin ?? 0,
-                    end: err.end ?? err.start + (err.length || 1),
-                    message: err.message || err.help || '문법 오류',
-                    suggestion: err.replacement || err.correction || undefined,
-                    severity: err.type === 'error' ? 'error' : 'warning'
-                  });
+              // Parse Bareun API response - revisedBlocks contains corrections
+              if (json.revisedBlocks && Array.isArray(json.revisedBlocks)) {
+                json.revisedBlocks.forEach((block: any) => {
+                  if (block.revisions && block.revisions.length > 0) {
+                    // Block has corrections
+                    const offset = block.origin?.beginOffset || 0;
+                    const length = block.origin?.length || 0;
+                    
+                    issues.push({
+                      start: offset,
+                      end: offset + length,
+                      message: `${block.revisions[0].category}: ${block.revised}`,
+                      suggestion: block.revised,
+                      severity: block.revisions[0].category === 'TYPO' ? 'error' : 'warning'
+                    });
+                  }
                 });
               }
               
+              console.log('Parsed issues:', issues); // 디버깅용
               resolve(issues);
             } catch (err) {
               console.error('Failed to parse Bareun response:', err);
