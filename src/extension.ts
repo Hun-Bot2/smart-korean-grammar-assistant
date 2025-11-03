@@ -7,6 +7,7 @@ import { StatusBarManager } from './status';
 
 let diagnosticsManager: DiagnosticsManager | undefined;
 let statusBarManager: StatusBarManager | undefined;
+let outputChannel: vscode.OutputChannel | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration();
@@ -14,6 +15,13 @@ export async function activate(context: vscode.ExtensionContext) {
   // Create status bar manager
   statusBarManager = new StatusBarManager();
   context.subscriptions.push(statusBarManager);
+
+  // Create output channel for debug/info
+  outputChannel = vscode.window.createOutputChannel('SKGA');
+  context.subscriptions.push(outputChannel);
+  
+  // Share output channel with BareunClient
+  BareunClient.setOutputChannel(outputChannel);
 
   // Create diagnostics manager with status callback
   diagnosticsManager = new DiagnosticsManager((state, issueCount) => {
@@ -23,16 +31,35 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   });
 
+  // Helper to check if document matches include patterns
+  function shouldAnalyze(doc: vscode.TextDocument): boolean {
+    if (doc.languageId !== 'markdown') return false;
+    
+    const includePaths = vscode.workspace.getConfiguration('skga').get<string[]>('includePaths', ['**/*.md']);
+    if (includePaths.length === 0) return true; // empty = all files
+    
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(doc.uri);
+    if (!workspaceFolder) return false;
+    
+    const relativePath = vscode.workspace.asRelativePath(doc.uri, false);
+    
+    // Check if file matches any include pattern
+    return includePaths.some(pattern => {
+      const glob = new vscode.RelativePattern(workspaceFolder, pattern);
+      return vscode.languages.match({ pattern: glob, language: 'markdown' }, doc) > 0;
+    });
+  }
+
   // analyze all open markdown documents
   vscode.workspace.textDocuments.forEach((doc) => {
-    if (doc.languageId === 'markdown') {
+    if (shouldAnalyze(doc)) {
       diagnosticsManager?.analyzeDocument(doc);
     }
   });
 
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((doc) => {
-      if (doc.languageId === 'markdown') {
+      if (shouldAnalyze(doc)) {
         diagnosticsManager?.analyzeDocument(doc);
       }
     })
@@ -53,7 +80,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
       const doc = e.document;
-      if (doc.languageId === 'markdown') {
+      if (shouldAnalyze(doc)) {
         scheduleAnalyze(doc);
       }
     })
@@ -85,6 +112,38 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('skga.showOutput', () => {
       vscode.commands.executeCommand('workbench.panel.markers.view.focus');
+    })
+  );
+
+  // Debug command: show current diagnostics and config in output channel
+  context.subscriptions.push(
+    vscode.commands.registerCommand('skga.debugStatus', () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showInformationMessage('SKGA: 활성화된 에디터가 없습니다');
+        return;
+      }
+
+      const doc = editor.document;
+      const diagnostics = diagnosticsManager?.getDiagnostics(doc.uri) || [];
+      const cfg = vscode.workspace.getConfiguration('skga');
+      const endpoint = cfg.get<string>('bareun.endpoint') || '';
+      const apiKey = cfg.get<string>('bareun.apiKey') || '';
+      const enabled = cfg.get<boolean>('enabled', true);
+
+      vscode.window.showInformationMessage(`SKGA debug: issues=${diagnostics.length}, endpoint=${endpoint ? 'set' : 'unset'}, apiKey=${apiKey ? 'set' : 'unset'}, enabled=${enabled}`);
+
+      outputChannel?.appendLine(`=== SKGA Debug (${new Date().toLocaleString()}) ===`);
+      outputChannel?.appendLine(`Document: ${doc.uri.toString()}`);
+      outputChannel?.appendLine(`Language: ${doc.languageId}`);
+      outputChannel?.appendLine(`Enabled: ${enabled}`);
+      outputChannel?.appendLine(`Endpoint: ${endpoint ? endpoint : '<unset>'}`);
+      outputChannel?.appendLine(`API Key: ${apiKey ? '<set>' : '<unset>'}`);
+      outputChannel?.appendLine(`Issues: ${diagnostics.length}`);
+      diagnostics.forEach((d) => {
+        outputChannel?.appendLine(` - [${d.severity}] ${d.range.start.line + 1}:${d.range.start.character + 1} - ${d.message}`);
+      });
+      outputChannel?.show(true);
     })
   );
 
