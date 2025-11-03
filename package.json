@@ -53,7 +53,39 @@
     "commands": [
       {
         "command": "skga.openSettings",
-        "title": "Smart Korean Grammar Assistant: Open Settings"
+        "title": "Korean Grammar: 설정 열기"
+      },
+      {
+        "command": "skga.toggleEnabled",
+        "title": "Korean Grammar: 활성화/비활성화"
+      },
+      {
+        "command": "skga.analyzeDocument",
+        "title": "Korean Grammar: 현재 문서 분석"
+      },
+      {
+        "command": "skga.showOutput",
+        "title": "Korean Grammar: 문제 패널 보기"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "skga.toggleEnabled",
+        "key": "ctrl+shift+k ctrl+shift+e",
+        "mac": "cmd+shift+k cmd+shift+e",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "skga.analyzeDocument",
+        "key": "ctrl+shift+k ctrl+shift+a",
+        "mac": "cmd+shift+k cmd+shift+a",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "editor.action.quickFix",
+        "key": "ctrl+shift+k ctrl+shift+f",
+        "mac": "cmd+shift+k cmd+shift+f",
+        "when": "editorTextFocus && editorLangId == markdown"
       }
     ]
   },

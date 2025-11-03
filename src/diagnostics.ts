@@ -1,12 +1,17 @@
 import * as vscode from 'vscode';
 import { BareunClient, BareunIssue } from './bareunClient';
 import { getExcludedRanges } from './util/markdownFilter';
+import { AnalysisState } from './status';
+
+export type StatusCallback = (state: AnalysisState, issueCount?: number) => void;
 
 export class DiagnosticsManager {
   private collection: vscode.DiagnosticCollection;
+  private statusCallback?: StatusCallback;
 
-  constructor() {
+  constructor(statusCallback?: StatusCallback) {
     this.collection = vscode.languages.createDiagnosticCollection('skga');
+    this.statusCallback = statusCallback;
   }
 
   dispose() {
@@ -14,11 +19,21 @@ export class DiagnosticsManager {
     this.collection.dispose();
   }
 
+  /**
+   * Get diagnostics for a specific document URI
+   */
+  getDiagnostics(uri: vscode.Uri): readonly vscode.Diagnostic[] {
+    return this.collection.get(uri) || [];
+  }
+
   async analyzeDocument(doc: vscode.TextDocument) {
     if (!vscode.workspace.getConfiguration().get('skga.enabled')) {
       this.collection.delete(doc.uri);
+      this.statusCallback?.('idle');
       return;
     }
+
+    this.statusCallback?.('analyzing');
 
     const endpoint = vscode.workspace.getConfiguration().get<string>('skga.bareun.endpoint') || '';
     const apiKey = vscode.workspace.getConfiguration().get<string>('skga.bareun.apiKey') || undefined;
@@ -29,6 +44,8 @@ export class DiagnosticsManager {
         issues = await BareunClient.analyze(endpoint, apiKey, doc.getText());
       } catch (err) {
         // fall back to local heuristics
+        console.error('Bareun API failed, falling back to local heuristics:', err);
+        this.statusCallback?.('error');
         issues = this.localHeuristics(doc.getText());
       }
     } else {
@@ -59,6 +76,7 @@ export class DiagnosticsManager {
       });
 
     this.collection.set(doc.uri, diagnostics);
+    this.statusCallback?.('success', diagnostics.length);
   }
 
   private mapSeverity(s?: string): vscode.DiagnosticSeverity {

@@ -2,13 +2,26 @@ import * as vscode from 'vscode';
 import { DiagnosticsManager } from './diagnostics';
 import { BareunClient } from './bareunClient';
 import { SkgaCodeActionProvider } from './codeActions';
+import { SkgaHoverProvider } from './hoverProvider';
+import { StatusBarManager } from './status';
 
 let diagnosticsManager: DiagnosticsManager | undefined;
+let statusBarManager: StatusBarManager | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration();
 
-  diagnosticsManager = new DiagnosticsManager();
+  // Create status bar manager
+  statusBarManager = new StatusBarManager();
+  context.subscriptions.push(statusBarManager);
+
+  // Create diagnostics manager with status callback
+  diagnosticsManager = new DiagnosticsManager((state, issueCount) => {
+    statusBarManager?.setState(state);
+    if (issueCount !== undefined) {
+      statusBarManager?.setIssueCount(issueCount);
+    }
+  });
 
   // analyze all open markdown documents
   vscode.workspace.textDocuments.forEach((doc) => {
@@ -55,9 +68,46 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // register hover provider for markdown
+  context.subscriptions.push(
+    vscode.languages.registerHoverProvider(
+      { language: 'markdown' },
+      new SkgaHoverProvider(diagnosticsManager!)
+    )
+  );
+
   context.subscriptions.push(
     vscode.commands.registerCommand('skga.openSettings', () => {
       vscode.commands.executeCommand('workbench.action.openSettings', 'skga');
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('skga.showOutput', () => {
+      vscode.commands.executeCommand('workbench.panel.markers.view.focus');
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('skga.toggleEnabled', () => {
+      const config = vscode.workspace.getConfiguration('skga');
+      const current = config.get<boolean>('enabled', true);
+      config.update('enabled', !current, vscode.ConfigurationTarget.Global);
+      vscode.window.showInformationMessage(
+        `Korean Grammar Assistant ${!current ? '활성화됨' : '비활성화됨'}`
+      );
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('skga.analyzeDocument', () => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor && editor.document.languageId === 'markdown') {
+        diagnosticsManager?.analyzeDocument(editor.document);
+        vscode.window.showInformationMessage('문서 분석 시작...');
+      } else {
+        vscode.window.showWarningMessage('활성 Markdown 문서가 없습니다');
+      }
     })
   );
 
@@ -77,4 +127,5 @@ export async function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
   diagnosticsManager?.dispose();
+  statusBarManager?.dispose();
 }
