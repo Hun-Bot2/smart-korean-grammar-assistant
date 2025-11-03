@@ -1,29 +1,31 @@
 # Smart Korean Grammar Assistant (SKGA)
 
-VS Code extension that checks Korean grammar, spelling, and spacing using the Bareun NLP engine (cloud/local) and provides inline diagnostics, hover explanations, and quick fixes for Markdown documents.
+Bareun NLP 엔진(클라우드/로컬)을 사용해 마크다운 문서의 한국어 문법·맞춤법·띄어쓰기를 검사하고, 인라인 진단, 호버 설명, 빠른 수정을 제공합니다.
+https://bareun.ai/home
 
 ## Installation
 
 ### From VS Code Marketplace
-1. Open VS Code
-2. Go to Extensions (`Cmd+Shift+X` or `Ctrl+Shift+X`)
-3. Search for "Smart Korean Grammar Assistant"
-4. Click Install
+1. VS Code를 엽니다.
+2. 확장(Extensions)을 엽니다 (`Cmd+Shift+X` 또는 `Ctrl+Shift+X`).
+3. "Smart Korean Grammar Assistant"를 검색합니다.
+4. 설치(Install)를 클릭합니다.
 
 ### From VSIX file
+다음 명령으로 설치합니다:
 ```bash
 code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 ```
 
 ## Features
 
-- **Inline Grammar Checks**: Underlines grammar/spelling/spacing issues in Markdown files
-- **Hover Explanations**: Detailed hover info showing original text, suggestions, and severity
-- **Quick Fixes**: Code actions to apply corrections with one click (`Cmd+.`)
-- **Status Bar**: Real-time analysis state and issue count indicator
-- **Keyboard Shortcuts**: Quick access to toggle, analyze, and fix
-- **Markdown-Aware**: Excludes code blocks and inline code from analysis
-- **Configurable Engine**: Use Bareun cloud API or local heuristics
+- **인라인 검사**: 마크다운 파일의 문법/맞춤법/띄어쓰기 문제를 밑줄로 표시합니다.
+- **Hover 설명**: 원문, 제안, 심각도 정보를 간단히 보여 줍니다.
+- **빠른 수정**: 한 번에 수정 적용이 가능합니다 (`Cmd+.`).
+- **상태 표시 줄**: 실시간 분석 상태와 문제 개수를 표시합니다.
+- **키보드 단축키**: 토글/분석/수정 기능에 빠르게 접근할 수 있습니다.
+- **마크다운 인식**: 코드 블록과 인라인 코드는 분석에서 제외합니다.
+- **엔진 선택**: Bareun 클라우드 API 또는 로컬 휴리스틱을 사용할 수 있습니다.
 
 ## Keyboard Shortcuts
 
@@ -33,49 +35,49 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 | Analyze Document | `Cmd+Shift+K Cmd+Shift+A` | `Ctrl+Shift+K Ctrl+Shift+A` | 현재 문서 분석 |
 | Quick Fix | `Cmd+Shift+K Cmd+Shift+F` | `Ctrl+Shift+K Ctrl+Shift+F` | 빠른 수정 적용 |
 
-> **Tip**: You can also use the standard `Cmd+.` (or `Ctrl+.`) to open Quick Fix menu
+> 팁: 표준 단축키 `Cmd+.`(또는 `Ctrl+.`)로 빠른 수정 메뉴를 열 수 있습니다.
 
 ## Configuration
 
-- `skga.bareun.endpoint` — Bareun NLP endpoint (default: `https://api.bareun.ai/bareun.RevisionService/CorrectError`)
-- `skga.bareun.apiKey` — API key for Bareun cloud service (required for cloud API)
-- `skga.enabled` — Enable or disable SKGA diagnostics (default: `true`)
+- `skga.bareun.endpoint` — Bareun NLP 엔드포인트 (기본값: `https://api.bareun.ai/bareun.RevisionService/CorrectError`).
+- `skga.bareun.apiKey` — Bareun 클라우드 서비스 API 키(클라우드 API 사용 시 필요).
+- `skga.enabled` — SKGA 진단 사용 여부(기본값: `true`).
 
 ### Getting a Bareun API Key
 
-1. Visit [Bareun NLP](https://bareun.ai/) to sign up
-2. Generate an API key from your dashboard
-3. Add the key to VS Code settings: `File > Preferences > Settings > Extensions > Smart Korean Grammar Assistant`
+1. [Bareun NLP](https://bareun.ai/)에서 가입합니다.
+2. 대시보드에서 API 키를 생성합니다.
+3. VS Code 설정에 키를 추가합니다: `설정 > 확장(Extensions) > 스마트 한국어 문법 도우미`.
 
 ## Usage
 
-1. Open a Markdown file (`.md`)
-2. SKGA automatically analyzes the document
-3. Grammar/spelling issues appear with yellow squiggles
-4. Hover over underlined text to see details
-5. Click the lightbulb 💡 or press `Cmd+.` to apply quick fixes
-6. Check the status bar (bottom-right) for issue count
+1. 마크다운 파일(`.md`)을 엽니다.
+2. SKGA가 문서를 자동으로 분석합니다.
+3. 문법/맞춤법 문제는 노란 밑줄로 표시됩니다.
+4. 밑줄 친 텍스트에 마우스를 올려 상세 내용을 확인합니다.
+5. 전구 아이콘을 클릭하거나 `Cmd+.`를 눌러 빠른 수정을 적용합니다.
+6. 상태 표시 줄(오른쪽 하단)에서 문제 개수를 확인합니다.
 
 ## Development
 
 ```bash
 npm install
 npm run compile
-# Press F5 in VS Code to run the extension in Extension Development Host
+# VS Code에서 F5를 눌러 Extension Development Host로 실행합니다.
 npm test
 ```
 
 ## Status Bar Indicators
 
-- `SKGA` — Idle (no active analysis)
-- `SKGA: 분석 중...` — Analyzing document
-- `SKGA: 문제 없음` — No issues found
-- `SKGA: N개 문제` — Issues detected
-- `SKGA: 오류` — Analysis error
+- `SKGA` — 대기 상태
+- `SKGA: 분석 중...` — 문서 분석 중
+- `SKGA: 문제 없음` — 문제없음
+- `SKGA: N개 문제` — 문제 N 개 감지
+- `SKGA: 오류` — 분석 오류
 
 ## Notes
 
-- This extension is optimized for Korean Markdown blog posts
-- Code blocks (` ``` `) and inline code (`` ` ``) are automatically excluded from analysis
-- When Bareun API is unavailable, falls back to basic local heuristics (double spaces, trailing spaces)
-- Analysis is debounced (350ms) to avoid excessive API calls during rapid typing
+- 이 확장은 한국어 마크다운 블로그 글에 최적화되어 있습니다.
+- 코드 블록(` ``` `)과 인라인 코드(`` ` ``)는 자동으로 분석에서 제외됩니다.
+- Bareun API를 사용할 수 없는 경우, 기본 로컬 휴리스틱(이중 공백, 줄 끝 공백)을 사용합니다.
+- 빠르게 타이핑할 때 과도한 API 호출을 막기 위해 분석은 350ms 디바운스됩니다.
