@@ -44,7 +44,6 @@ export class DiagnosticsManager {
         issues = await BareunClient.analyze(endpoint, apiKey, doc.getText());
       } catch (err) {
         // fall back to local heuristics
-        console.error('Bareun API failed, falling back to local heuristics:', err);
         this.statusCallback?.('error');
         issues = this.localHeuristics(doc.getText());
       }

@@ -121,8 +121,6 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     })
   );
-
-  console.log('Smart Korean Grammar Assistant activated');
 }
 
 export function deactivate() {

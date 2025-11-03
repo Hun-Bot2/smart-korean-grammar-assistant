@@ -13,7 +13,6 @@ export class BareunClient {
   static async analyze(endpoint: string, apiKey: string | undefined, text: string): Promise<BareunIssue[]> {
     if (!endpoint) return [];
     if (!apiKey) {
-      console.warn('Bareun API key not configured, using local heuristics');
       return [];
     }
 
@@ -37,8 +36,7 @@ export class BareunClient {
           'Content-Type': 'application/json',
           'api-key': apiKey,
           'Content-Length': Buffer.byteLength(payload).toString()
-        },
-        rejectUnauthorized: false  // SSL 인증서 검증 비활성화 (개발용)
+        }
       };
 
       return await new Promise<BareunIssue[]>((resolve, reject) => {
@@ -48,12 +46,9 @@ export class BareunClient {
           res.on('data', (chunk) => (data += chunk));
           res.on('end', () => {
             if (res.statusCode !== 200) {
-              console.error(`Bareun API error: ${res.statusCode} - ${data}`);
               resolve([]);
               return;
             }
-            
-            console.log('Bareun API response:', data); // 디버깅용
             
             try {
               const json = JSON.parse(data);
@@ -78,23 +73,19 @@ export class BareunClient {
                 });
               }
               
-              console.log('Parsed issues:', issues); // 디버깅용
               resolve(issues);
             } catch (err) {
-              console.error('Failed to parse Bareun response:', err);
               resolve([]);
             }
           });
         });
 
         req.on('error', (e) => {
-          console.error('Bareun API request failed:', e);
           resolve([]);
         });
         
         req.setTimeout(5000, () => {
           req.destroy();
-          console.error('Bareun API timeout');
           resolve([]);
         });
 
@@ -102,7 +93,6 @@ export class BareunClient {
         req.end();
       });
     } catch (err) {
-      console.error('Bareun client error:', err);
       return [];
     }
   }
