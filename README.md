@@ -1,4 +1,4 @@
-# Smart Korean Grammar Assistant (SKGA)
+# Bareun Korean Grammar Assistant (BKGA)
 
 Bareun NLP 엔진(클라우드/로컬)을 사용해 마크다운 문서의 한국어 문법·맞춤법·띄어쓰기를 검사하고, 인라인 진단, 호버 설명, 빠른 수정을 제공합니다.
 https://bareun.ai/home
@@ -8,7 +8,7 @@ https://bareun.ai/home
 ### From VS Code Marketplace
 1. VS Code를 엽니다.
 2. 확장(Extensions)을 엽니다 (`Cmd+Shift+X` 또는 `Ctrl+Shift+X`).
-3. "Smart Korean Grammar Assistant"를 검색합니다.
+3. "Bareun Korean Grammar Assistant"를 검색합니다.
 4. 설치(Install)를 클릭합니다.
 
 ### From VSIX file
@@ -69,11 +69,11 @@ npm test
 
 ## Status Bar Indicators
 
-- `SKGA` — 대기 상태
-- `SKGA: 분석 중...` — 문서 분석 중
-- `SKGA: 문제 없음` — 문제없음
-- `SKGA: N개 문제` — 문제 N 개 감지
-- `SKGA: 오류` — 분석 오류
+- `BKGA` — 대기 상태
+- `BKGA: 분석 중...` — 문서 분석 중
+- `BKGA: 문제 없음` — 문제없음
+- `BKGA: N개 문제` — 문제 N 개 감지
+- `BKGA: 오류` — 분석 오류
 
 ## Notes
 

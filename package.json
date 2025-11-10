@@ -1,6 +1,6 @@
 {
   "name": "smart-korean-grammar-assistant",
-  "displayName": "Smart Korean Grammar Assistant",
+  "displayName": "Bareun Korean Grammar Assistant",
   "publisher": "Hun-Bot",
   "version": "1.0.0",
   "engines": {
@@ -8,7 +8,7 @@
   },
   "description": "Real-time Korean grammar, spelling, and spacing checker for Markdown files using Bareun NLP API",
   "main": "./out/extension.js",
-  "icon": "icon.png",
+  "icon": "BKGA.png",
   "galleryBanner": {
     "color": "#1E1E1E",
     "theme": "dark"
@@ -42,7 +42,7 @@
   },
   "contributes": {
     "configuration": {
-      "title": "Smart Korean Grammar Assistant",
+      "title": "Bareun Korean Grammar Assistant",
       "properties": {
         "skga.bareun.endpoint": {
           "type": "string",
