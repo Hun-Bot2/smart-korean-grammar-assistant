@@ -32,9 +32,9 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 
 | Command | Mac | Windows/Linux | Description |
 |---------|-----|---------------|-------------|
-| Toggle Enable/Disable | `Cmd+K Cmd+G E` | `Ctrl+K Ctrl+G E` | 활성화/비활성화 |
-| Analyze Document | `Cmd+K Cmd+G A` | `Ctrl+K Ctrl+G A` | 현재 문서 분석 |
-| Quick Fix | `Cmd+K Cmd+G F` | `Ctrl+K Ctrl+G F` | 빠른 수정 적용 |
+| Toggle Enable/Disable | `Cmd+K G E` | `Ctrl+K G E` | 활성화/비활성화 |
+| Analyze Document | `Cmd+K G A` | `Ctrl+K G A` | 현재 문서 분석 |
+| Quick Fix | `Cmd+K G F` | `Ctrl+K G F` | 빠른 수정 적용 |
 
 > 팁: 표준 단축키 `Cmd+.`(또는 `Ctrl+.`)로 빠른 수정 메뉴를 열 수 있습니다.
 
