@@ -161,11 +161,71 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('bkga.analyzeDocument', () => {
       const editor = vscode.window.activeTextEditor;
-      if (editor && editor.document.languageId === 'markdown') {
-        diagnosticsManager?.analyzeDocument(editor.document);
-        vscode.window.showInformationMessage('문서 분석 시작...');
-      } else {
-        vscode.window.showWarningMessage('활성 Markdown 문서가 없습니다');
+      if (!editor || editor.document.languageId !== 'markdown') {
+        vscode.window.showWarningMessage('마크다운 문서만 분석할 수 있습니다.');
+        return;
+      }
+      diagnosticsManager?.analyzeDocument(editor.document);
+      vscode.window.showInformationMessage('문서 분석을 시작합니다...');
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('bkga.fixSelection', async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage('활성화된 에디터가 없습니다.');
+        return;
+      }
+
+      const selection = editor.selection;
+      if (selection.isEmpty) {
+        vscode.window.showWarningMessage('텍스트를 선택해주세요.');
+        return;
+      }
+
+      const selectedText = editor.document.getText(selection);
+      const endpoint = vscode.workspace.getConfiguration().get<string>('bkga.bareun.endpoint') || '';
+      const apiKey = vscode.workspace.getConfiguration().get<string>('bkga.bareun.apiKey') || undefined;
+
+      if (!endpoint || !apiKey) {
+        vscode.window.showWarningMessage('Bareun API 설정이 필요합니다.');
+        return;
+      }
+
+      try {
+        statusBarManager?.setState('analyzing');
+        vscode.window.showInformationMessage('선택한 텍스트를 분석 중...');
+        
+        const issues = await BareunClient.analyze(endpoint, apiKey, selectedText);
+        
+        if (issues.length === 0) {
+          statusBarManager?.setState('success');
+          vscode.window.showInformationMessage('문제가 발견되지 않았습니다.');
+          return;
+        }
+
+        // Apply all fixes from end to start to maintain correct positions
+        let fixedText = selectedText;
+        const sortedIssues = [...issues].sort((a, b) => b.start - a.start);
+        
+        for (const issue of sortedIssues) {
+          if (issue.suggestion) {
+            fixedText = fixedText.substring(0, issue.start) + 
+                       issue.suggestion + 
+                       fixedText.substring(issue.end);
+          }
+        }
+
+        await editor.edit(editBuilder => {
+          editBuilder.replace(selection, fixedText);
+        });
+
+        statusBarManager?.setState('success');
+        vscode.window.showInformationMessage(`${issues.length}개의 문제를 수정했습니다.`);
+      } catch (err) {
+        statusBarManager?.setState('error');
+        vscode.window.showErrorMessage('분석 중 오류가 발생했습니다.');
       }
     })
   );

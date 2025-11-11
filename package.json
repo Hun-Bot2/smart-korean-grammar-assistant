@@ -87,6 +87,10 @@
         "title": "Korean Grammar: 현재 문서 분석"
       },
       {
+        "command": "bkga.fixSelection",
+        "title": "Korean Grammar: 선택 영역 자동 수정"
+      },
+      {
         "command": "bkga.showOutput",
         "title": "Korean Grammar: 문제 패널 보기"
       }
@@ -105,10 +109,10 @@
         "when": "editorTextFocus && editorLangId == markdown"
       },
       {
-        "command": "editor.action.quickFix",
+        "command": "bkga.fixSelection",
         "key": "ctrl+k g f",
         "mac": "cmd+k g f",
-        "when": "editorTextFocus && editorLangId == markdown"
+        "when": "editorTextFocus && editorLangId == markdown && editorHasSelection"
       }
     ]
   },
