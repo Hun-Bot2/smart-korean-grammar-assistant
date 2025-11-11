@@ -94,20 +94,20 @@
     "keybindings": [
       {
         "command": "bkga.toggleEnabled",
-        "key": "ctrl+shift+k ctrl+shift+e",
-        "mac": "cmd+shift+k cmd+shift+e",
+        "key": "ctrl+k ctrl+g e",
+        "mac": "cmd+k cmd+g e",
         "when": "editorTextFocus"
       },
       {
         "command": "bkga.analyzeDocument",
-        "key": "ctrl+shift+k ctrl+shift+a",
-        "mac": "cmd+shift+k cmd+shift+a",
+        "key": "ctrl+k ctrl+g a",
+        "mac": "cmd+k cmd+g a",
         "when": "editorTextFocus && editorLangId == markdown"
       },
       {
         "command": "editor.action.quickFix",
-        "key": "ctrl+shift+k ctrl+shift+f",
-        "mac": "cmd+shift+k cmd+shift+f",
+        "key": "ctrl+k ctrl+g f",
+        "mac": "cmd+k cmd+g f",
         "when": "editorTextFocus && editorLangId == markdown"
       }
     ]

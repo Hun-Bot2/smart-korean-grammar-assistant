@@ -1,6 +1,7 @@
 # Bareun Korean Grammar Assistant (BKGA)
 
 Bareun NLP 엔진(클라우드/로컬)을 사용해 마크다운 문서의 한국어 문법·맞춤법·띄어쓰기를 검사하고, 인라인 진단, 호버 설명, 빠른 수정을 제공합니다.
+
 https://bareun.ai/home
 
 ## Installation
@@ -31,17 +32,17 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 
 | Command | Mac | Windows/Linux | Description |
 |---------|-----|---------------|-------------|
-| Toggle Enable/Disable | `Cmd+Shift+K Cmd+Shift+E` | `Ctrl+Shift+K Ctrl+Shift+E` | 활성화/비활성화 |
-| Analyze Document | `Cmd+Shift+K Cmd+Shift+A` | `Ctrl+Shift+K Ctrl+Shift+A` | 현재 문서 분석 |
-| Quick Fix | `Cmd+Shift+K Cmd+Shift+F` | `Ctrl+Shift+K Ctrl+Shift+F` | 빠른 수정 적용 |
+| Toggle Enable/Disable | `Cmd+K Cmd+G E` | `Ctrl+K Ctrl+G E` | 활성화/비활성화 |
+| Analyze Document | `Cmd+K Cmd+G A` | `Ctrl+K Ctrl+G A` | 현재 문서 분석 |
+| Quick Fix | `Cmd+K Cmd+G F` | `Ctrl+K Ctrl+G F` | 빠른 수정 적용 |
 
 > 팁: 표준 단축키 `Cmd+.`(또는 `Ctrl+.`)로 빠른 수정 메뉴를 열 수 있습니다.
 
 ## Configuration
 
-- `skga.bareun.endpoint` — Bareun NLP 엔드포인트 (기본값: `https://api.bareun.ai/bareun.RevisionService/CorrectError`).
-- `skga.bareun.apiKey` — Bareun 클라우드 서비스 API 키(클라우드 API 사용 시 필요).
-- `skga.enabled` — SKGA 진단 사용 여부(기본값: `true`).
+- `bkga.bareun.endpoint` — Bareun NLP 엔드포인트 (기본값: `https://api.bareun.ai/bareun.RevisionService/CorrectError`).
+- `bkga.bareun.apiKey` — Bareun 클라우드 서비스 API 키(클라우드 API 사용 시 필요).
+- `bkga.enabled` — bkga 진단 사용 여부(기본값: `true`).
 
 ### Getting a Bareun API Key
 
@@ -52,7 +53,7 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 ## Usage
 
 1. 마크다운 파일(`.md`)을 엽니다.
-2. SKGA가 문서를 자동으로 분석합니다.
+2. bkga가 문서를 자동으로 분석합니다.
 3. 문법/맞춤법 문제는 노란 밑줄로 표시됩니다.
 4. 밑줄 친 텍스트에 마우스를 올려 상세 내용을 확인합니다.
 5. 전구 아이콘을 클릭하거나 `Cmd+.`를 눌러 빠른 수정을 적용합니다.
