@@ -15,7 +15,7 @@ export class StatusBarManager {
       vscode.StatusBarAlignment.Right,
       100
     );
-    this.statusBarItem.command = 'skga.showOutput';
+    this.statusBarItem.command = 'bkga.showOutput';
     this.updateStatusBar();
     this.statusBarItem.show();
   }
@@ -42,24 +42,24 @@ export class StatusBarManager {
   private updateStatusBar(): void {
     switch (this.state) {
       case 'analyzing':
-        this.statusBarItem.text = '$(sync~spin) SKGA: 분석 중...';
+        this.statusBarItem.text = '$(sync~spin) BKGA: 분석 중...';
         this.statusBarItem.tooltip = 'Korean Grammar Assistant가 문서를 분석하고 있습니다';
         this.statusBarItem.backgroundColor = undefined;
         break;
 
       case 'error':
-        this.statusBarItem.text = '$(error) SKGA: 오류';
+        this.statusBarItem.text = '$(error) BKGA: 오류';
         this.statusBarItem.tooltip = '분석 중 오류가 발생했습니다. 출력 패널을 확인하세요';
         this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
         break;
 
       case 'success':
         if (this.issueCount > 0) {
-          this.statusBarItem.text = `$(warning) SKGA: ${this.issueCount}개 문제`;
+          this.statusBarItem.text = `$(warning) BKGA: ${this.issueCount}개 문제`;
           this.statusBarItem.tooltip = `${this.issueCount}개의 문법/맞춤법 문제 발견`;
           this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
         } else {
-          this.statusBarItem.text = '$(check) SKGA: 문제 없음';
+          this.statusBarItem.text = '$(check) BKGA: 문제 없음';
           this.statusBarItem.tooltip = '문법/맞춤법 문제가 발견되지 않았습니다';
           this.statusBarItem.backgroundColor = undefined;
         }
@@ -67,7 +67,7 @@ export class StatusBarManager {
 
       case 'idle':
       default:
-        this.statusBarItem.text = '$(book) SKGA';
+        this.statusBarItem.text = '$(book) BKGA';
         this.statusBarItem.tooltip = 'Smart Korean Grammar Assistant';
         this.statusBarItem.backgroundColor = undefined;
         break;

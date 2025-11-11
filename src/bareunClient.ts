@@ -18,7 +18,7 @@ export class BareunClient {
   }
   
   static async analyze(endpoint: string, apiKey: string | undefined, text: string): Promise<BareunIssue[]> {
-    const out = outputChannel || vscode.window.createOutputChannel('SKGA-fallback');
+    const out = outputChannel || vscode.window.createOutputChannel('BKGA-fallback');
     
     if (!endpoint) {
       out.appendLine('Bareun endpoint not configured, skipping API call');

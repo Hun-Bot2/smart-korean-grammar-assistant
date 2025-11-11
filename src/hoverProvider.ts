@@ -5,7 +5,7 @@ import { DiagnosticsManager } from './diagnostics';
  * Provides hover information for Korean grammar diagnostics.
  * Shows detailed explanations and suggestions when hovering over underlined issues.
  */
-export class SkgaHoverProvider implements vscode.HoverProvider {
+export class BkgaHoverProvider implements vscode.HoverProvider {
   constructor(private diagnosticsManager: DiagnosticsManager) {}
 
   provideHover(
@@ -35,7 +35,7 @@ export class SkgaHoverProvider implements vscode.HoverProvider {
     markdown.isTrusted = true;
     markdown.supportHtml = true;
 
-    markdown.appendMarkdown(`### 🇰🇷 Korean Grammar Assistant\n\n`);
+    markdown.appendMarkdown(`###🇰🇷 Bareun Korean Grammar Assistant\n\n`);
     markdown.appendMarkdown(`**문제**: ${diagnostic.message}\n\n`);
     markdown.appendMarkdown(`**원문**: \`${originalText}\`\n\n`);
     

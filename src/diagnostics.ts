@@ -10,7 +10,7 @@ export class DiagnosticsManager {
   private statusCallback?: StatusCallback;
 
   constructor(statusCallback?: StatusCallback) {
-    this.collection = vscode.languages.createDiagnosticCollection('skga');
+    this.collection = vscode.languages.createDiagnosticCollection('bkga');
     this.statusCallback = statusCallback;
   }
 
@@ -27,7 +27,7 @@ export class DiagnosticsManager {
   }
 
   async analyzeDocument(doc: vscode.TextDocument) {
-    if (!vscode.workspace.getConfiguration().get('skga.enabled')) {
+    if (!vscode.workspace.getConfiguration().get('bkga.enabled')) {
       this.collection.delete(doc.uri);
       this.statusCallback?.('idle');
       return;
@@ -35,8 +35,8 @@ export class DiagnosticsManager {
 
     this.statusCallback?.('analyzing');
 
-    const endpoint = vscode.workspace.getConfiguration().get<string>('skga.bareun.endpoint') || '';
-    const apiKey = vscode.workspace.getConfiguration().get<string>('skga.bareun.apiKey') || undefined;
+    const endpoint = vscode.workspace.getConfiguration().get<string>('bkga.bareun.endpoint') || '';
+    const apiKey = vscode.workspace.getConfiguration().get<string>('bkga.bareun.apiKey') || undefined;
 
     let issues: BareunIssue[] = [];
     if (endpoint) {
@@ -67,7 +67,7 @@ export class DiagnosticsManager {
         const endPos = doc.positionAt(iss.end);
         const range = new vscode.Range(startPos, endPos);
         const diag = new vscode.Diagnostic(range, iss.message, this.mapSeverity(iss.severity));
-        diag.source = 'SKGA';
+        diag.source = 'BKGA';
         if (iss.suggestion) {
           (diag as any).suggestion = iss.suggestion;
         }

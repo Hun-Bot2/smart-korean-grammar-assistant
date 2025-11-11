@@ -44,22 +44,22 @@
     "configuration": {
       "title": "Bareun Korean Grammar Assistant",
       "properties": {
-        "skga.bareun.endpoint": {
+        "bkga.bareun.endpoint": {
           "type": "string",
           "default": "",
           "description": "Bareun NLP endpoint (e.g. https://api.bareun.ai/analyze). Leave empty to use local heuristics."
         },
-        "skga.bareun.apiKey": {
+        "bkga.bareun.apiKey": {
           "type": "string",
           "default": "",
           "description": "API key for Bareun cloud service (optional)."
         },
-        "skga.enabled": {
+        "bkga.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable Smart Korean Grammar Assistant diagnostics"
         },
-        "skga.includePaths": {
+        "bkga.includePaths": {
           "type": "array",
           "items": {
             "type": "string"
@@ -71,35 +71,35 @@
     },
     "commands": [
       {
-        "command": "skga.openSettings",
+        "command": "bkga.openSettings",
         "title": "Korean Grammar: 설정 열기"
       },
       {
-        "command": "skga.debugStatus",
+        "command": "bkga.debugStatus",
         "title": "Korean Grammar: Debug Status"
       },
       {
-        "command": "skga.toggleEnabled",
+        "command": "bkga.toggleEnabled",
         "title": "Korean Grammar: 활성화/비활성화"
       },
       {
-        "command": "skga.analyzeDocument",
+        "command": "bkga.analyzeDocument",
         "title": "Korean Grammar: 현재 문서 분석"
       },
       {
-        "command": "skga.showOutput",
+        "command": "bkga.showOutput",
         "title": "Korean Grammar: 문제 패널 보기"
       }
     ],
     "keybindings": [
       {
-        "command": "skga.toggleEnabled",
+        "command": "bkga.toggleEnabled",
         "key": "ctrl+shift+k ctrl+shift+e",
         "mac": "cmd+shift+k cmd+shift+e",
         "when": "editorTextFocus"
       },
       {
-        "command": "skga.analyzeDocument",
+        "command": "bkga.analyzeDocument",
         "key": "ctrl+shift+k ctrl+shift+a",
         "mac": "cmd+shift+k cmd+shift+a",
         "when": "editorTextFocus && editorLangId == markdown"

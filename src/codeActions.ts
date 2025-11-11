@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { DiagnosticsManager } from './diagnostics';
 
-export class SkgaCodeActionProvider implements vscode.CodeActionProvider {
+export class BkgaCodeActionProvider implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [vscode.CodeActionKind.QuickFix];
 
   constructor(private diagnosticsManager: DiagnosticsManager) {}
