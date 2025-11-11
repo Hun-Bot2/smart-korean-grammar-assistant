@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { BareunClient, BareunIssue } from './bareunClient';
-import { getExcludedRanges } from './util/markdownFilter';
 import { AnalysisState } from './status';
 
 export type StatusCallback = (state: AnalysisState, issueCount?: number) => void;
@@ -51,17 +50,9 @@ export class DiagnosticsManager {
       issues = this.localHeuristics(doc.getText());
     }
 
-    // Filter out issues that fall inside excluded Markdown ranges (code blocks, inline code)
-    const excluded = getExcludedRanges(doc.getText());
-
+    // For local heuristics only: Filter out issues in code blocks
+    // (Bareun API already handles this, so only filter if using local heuristics)
     const diagnostics: vscode.Diagnostic[] = issues
-      .filter((iss) => {
-        // if any excluded range fully contains the issue range, drop it
-        for (const ex of excluded) {
-          if (iss.start >= ex.start && iss.end <= ex.end) return false;
-        }
-        return true;
-      })
       .map((iss) => {
         const startPos = doc.positionAt(iss.start);
         const endPos = doc.positionAt(iss.end);
