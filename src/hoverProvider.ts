@@ -1,62 +1,81 @@
 import * as vscode from 'vscode';
 import { DiagnosticsManager } from './diagnostics';
+import { CustomDictionaryService } from './customDictionary';
+import { DICT_CATEGORY_LABELS, DictKey } from './customDictionaryMeta';
 
 /**
  * Provides hover information for Korean grammar diagnostics.
  * Shows detailed explanations and suggestions when hovering over underlined issues.
  */
 export class BkgaHoverProvider implements vscode.HoverProvider {
-  constructor(private diagnosticsManager: DiagnosticsManager) {}
+  constructor(
+    private diagnosticsManager: DiagnosticsManager,
+    private customDictionary: CustomDictionaryService
+  ) {}
 
   provideHover(
     document: vscode.TextDocument,
     position: vscode.Position,
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Hover> {
-    // Get diagnostics for this document
     const diagnostics = this.diagnosticsManager.getDiagnostics(document.uri);
-    if (!diagnostics || diagnostics.length === 0) {
+    const diagnostic = diagnostics?.find((d) => d.range.contains(position));
+
+    const wordRange = document.getWordRangeAtPosition(
+      position,
+      /[가-힣A-Za-z0-9_^·-]+/
+    );
+    const hoveredWord = wordRange ? document.getText(wordRange) : '';
+    const dictEnabled = this.customDictionary.isEnabled();
+    const dictMatches = hoveredWord && dictEnabled ? this.customDictionary.lookup(hoveredWord) : [];
+
+    if (!diagnostic && (!dictEnabled || !dictMatches.length) && !hoveredWord) {
       return null;
     }
 
-    // Find diagnostic at this position
-    const diagnostic = diagnostics.find(d => d.range.contains(position));
-    if (!diagnostic) {
-      return null;
-    }
-
-    // Extract issue details from diagnostic
-    const originalText = document.getText(diagnostic.range);
-    const suggestion = (diagnostic as any).suggestion;
-    const category = (diagnostic.code as string) || '';
-
-    // Map category to user-friendly name and emoji
-    const categoryInfo = this.getCategoryInfo(category);
-
-    // Build hover content
     const markdown = new vscode.MarkdownString();
     markdown.isTrusted = true;
     markdown.supportHtml = true;
 
-    markdown.appendMarkdown(`#🇰🇷 ${categoryInfo.name}\n\n`);
-    
-    if (suggestion && suggestion !== originalText) {
-      const diff = this.buildDiffHighlight(originalText, suggestion);
-      markdown.appendMarkdown(`**원문**: ${diff.originalHtml}\n\n`);
-      markdown.appendMarkdown(`**대치어**: ${diff.suggestionHtml}\n\n`);
-      if (diff.diffBlock) {
-        markdown.appendMarkdown(`**변경 내용**:\n`);
-        markdown.appendCodeblock(diff.diffBlock, 'diff');
-        markdown.appendMarkdown(`\n`);
+    if (diagnostic) {
+      const originalText = document.getText(diagnostic.range);
+      const suggestion = (diagnostic as any).suggestion;
+      const category = (diagnostic.code as string) || '';
+      const categoryInfo = this.getCategoryInfo(category);
+
+      markdown.appendMarkdown(`#🇰🇷 ${categoryInfo.name}\n\n`);
+
+      if (suggestion && suggestion !== originalText) {
+        const diff = this.buildDiffHighlight(originalText, suggestion);
+        markdown.appendMarkdown(`**원문**: ${diff.originalHtml}\n\n`);
+        markdown.appendMarkdown(`**대치어**: ${diff.suggestionHtml}\n\n`);
+        if (diff.diffBlock) {
+          markdown.appendMarkdown(`**변경 내용**:\n`);
+          markdown.appendCodeblock(diff.diffBlock, 'diff');
+          markdown.appendMarkdown(`\n`);
+        }
+        markdown.appendMarkdown(`**도움말**: ${diagnostic.message}\n\n`);
+        markdown.appendMarkdown(`---\n\n`);
+        markdown.appendMarkdown(
+          `💡 _빠른 수정을 적용하려면 전구 아이콘을 클릭하거나 \`Cmd+.\` 를 누르세요_`
+        );
+      } else {
+        markdown.appendMarkdown(`**도움말**: ${diagnostic.message}\n\n`);
       }
-      markdown.appendMarkdown(`**도움말**: ${diagnostic.message}\n\n`);
-      markdown.appendMarkdown(`---\n\n`);
-      markdown.appendMarkdown(`💡 _빠른 수정을 적용하려면 전구 아이콘을 클릭하거나 \`Cmd+.\` 를 누르세요_`);
-    } else {
-      markdown.appendMarkdown(`**도움말**: ${diagnostic.message}\n\n`);
     }
 
-    return new vscode.Hover(markdown, diagnostic.range);
+    if (dictEnabled && hoveredWord) {
+      if (diagnostic) {
+        markdown.appendMarkdown(`\n\n---\n\n`);
+      }
+      markdown.appendMarkdown(this.buildCustomDictionarySection(hoveredWord, dictMatches));
+    }
+
+    const range = diagnostic?.range || wordRange;
+    if (!range) {
+      return null;
+    }
+    return new vscode.Hover(markdown, range);
   }
 
   private getCategoryInfo(category: string): { name: string; emoji: string; color: string } {
@@ -140,5 +159,44 @@ export class BkgaHoverProvider implements vscode.HoverProvider {
 
   private wrapInCode(content: string): string {
     return `<code>${content || '&nbsp;'}</code>`;
+  }
+
+  private buildCustomDictionarySection(word: string, matches: DictKey[]): string {
+    const escapedWord = this.wrapInCode(this.escapeHtml(word));
+    const commandLink = (command: string, args: unknown) =>
+      `[실행](command:${command}?${encodeURIComponent(JSON.stringify(args))})`;
+
+    let section = `### 🗂 사용자 사전\n\n`;
+
+    if (matches.length > 0) {
+      section += `${escapedWord} 은(는) 다음 사전에 등록되어 있습니다:\n\n`;
+      section += matches
+        .map((key) => {
+          const meta = DICT_CATEGORY_LABELS[key];
+          const removeArgs = [{ word, dictKey: key }];
+          return `- **${meta.title}** — ${meta.subtitle} ${commandLink(
+            'bkga.removeWordFromCustomDictionary',
+            removeArgs
+          )}`;
+        })
+        .join('\n');
+      section += `\n\n[사전 패널 열기](command:bkga.showCustomDictionary)\n`;
+      return section;
+    }
+
+    section += `${escapedWord} 은(는) 아직 사용자 사전에 없습니다.\n\n`;
+    section += `추가할 사전을 선택하세요:\n\n`;
+    section += (Object.keys(DICT_CATEGORY_LABELS) as DictKey[])
+      .map((key) => {
+        const meta = DICT_CATEGORY_LABELS[key];
+        const addArgs = [{ word, dictKey: key }];
+        return `- **${meta.title}** (${meta.subtitle}) ${commandLink(
+          'bkga.addWordToCustomDictionary',
+          addArgs
+        )}`;
+      })
+      .join('\n');
+    section += `\n\n[사전 패널 열기](command:bkga.showCustomDictionary)\n`;
+    return section;
   }
 }

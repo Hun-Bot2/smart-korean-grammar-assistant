@@ -73,6 +73,7 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 | Toggle Enable/Disable | `Cmd+K G E` | `Ctrl+K G E` | 활성화/비활성화 |
 | Analyze Document | `Cmd+K G A` | `Ctrl+K G A` | 현재 문서 분석 |
 | Fix Selection | `Cmd+K G F` | `Ctrl+K G F` | 선택 영역 자동 수정 (여러 줄 한번에) |
+| Show Custom Dictionary | `Cmd+K G D` | `Ctrl+K G D` | 사용자 사전 패널 열기 |
 
 > **팁**: 
 > - 개별 오류 수정: `Cmd+.` (또는 `Ctrl+.`)로 빠른 수정 메뉴 열기
@@ -85,6 +86,18 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 - `bkga.enabled` — Extension 활성화 여부 (기본값: `true`)
 - `bkga.includePaths` — 분석할 파일 패턴 (기본값: `["**/*.md"]`)
 - `bkga.ignoreEnglishInMarkdown` — 마크다운 문서에서 영어 텍스트는 진단에서 제외 (기본값: `true`)
+- `bkga.customDictionary.*` — 사용자 사전 연동 설정 (엔드포인트, 도메인, 단어 목록)
+
+### 사용자 사전 연동
+
+Bareun의 [Custom Dictionary](https://bareun.ai/custom-dict) / [Cloud API 안내](https://bareun.ai/docs?childUrl=howtouse/cloud-api/)를 그대로 사용합니다. `[수학, 알고리즘, 프로그래밍 등 기초 과목을 공부하심]`처럼 고유한 표현을 사전에 넣어 띄어쓰기 오탐을 막을 수 있습니다.
+
+1. VS Code 설정에서 `bkga.customDictionary.enabled`를 켜고 `domainName`, `endpoint`(예: `https://api.bareun.ai/bareun.CustomDictionaryService/UpdateCustomDictionary`)를 입력합니다.
+2. 초기 단어를 `npSet`, `cpSet`, `cpCaretSet`, `vvSet`, `vaSet` 배열에 적어 두면 확장이 Bareun `UpdateCustomDictionaryRequest` 포맷(`np_set`, `cp_set`, `cp_caret_set`, `vv_set`, `va_set`)으로 직렬화합니다.
+3. 명령 팔레트에서 **Korean Grammar: 선택 텍스트를 사용자 사전에 추가**를 실행하면 선택 영역을 어떤 사전에 넣을지 고를 수 있습니다.
+4. 변경사항을 서버에 반영하려면 **Korean Grammar: 사용자 사전 동기화** 명령을 실행하세요. 같은 도메인 이름의 사전은 통째로 교체됩니다.
+5. 현재 등록된 단어를 확인하려면 **Korean Grammar: 사용자 사전 패널 열기**를 실행하세요. VS Code 안에서 카테고리별 카드 UI로 단어 목록이 표시됩니다.
+6. 마크다운에서 단어 위에 마우스를 올리면 사용자 사전 상태가 함께 표시되어, 한 번의 클릭으로 해당 사전에 추가하거나 삭제할 수 있습니다.
 
 ### Getting a Bareun API Key
 

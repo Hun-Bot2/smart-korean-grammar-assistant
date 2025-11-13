@@ -9,6 +9,12 @@
     "chat.tools.terminal.autoApprove": {
         ".specify/scripts/bash/": true,
         ".specify/scripts/powershell/": true
-    }
+    },
+    "bkga.customDictionary.npSet": [
+        "가우시안스플래팅으로뭔가"
+    ],
+    "bkga.customDictionary.cpCaretSet": [
+        "공부하심"
+    ]
 }
 

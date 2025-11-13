@@ -10,6 +10,24 @@ export type BareunIssue = {
   severity?: 'error' | 'warning' | 'info';
 };
 
+export type DictSetPayload = {
+  items: Record<string, number>;
+  type: 'WORD_LIST' | 'WORD_LIST_COMPOUND';
+  name?: string;
+};
+
+export type UpdateCustomDictionaryRequest = {
+  domain_name: string;
+  dict: {
+    domain_name: string;
+    np_set?: DictSetPayload;
+    cp_set?: DictSetPayload;
+    cp_caret_set?: DictSetPayload;
+    vv_set?: DictSetPayload;
+    va_set?: DictSetPayload;
+  };
+};
+
 let outputChannel: vscode.OutputChannel | undefined;
 
 export class BareunClient {
@@ -120,6 +138,81 @@ export class BareunClient {
       });
     } catch (err) {
       return [];
+    }
+  }
+
+  static async updateCustomDictionary(
+    endpoint: string,
+    apiKey: string | undefined,
+    payload: UpdateCustomDictionaryRequest
+  ): Promise<boolean> {
+    const out = outputChannel || vscode.window.createOutputChannel('BKGA-fallback');
+
+    if (!endpoint) {
+      out.appendLine('Custom dictionary endpoint not configured.');
+      return false;
+    }
+
+    if (!apiKey) {
+      out.appendLine('Bareun API key not configured. Cannot sync custom dictionary.');
+      return false;
+    }
+
+    try {
+      const url = new URL(endpoint);
+      const body = JSON.stringify(payload);
+
+      const opts: https.RequestOptions = {
+        method: 'POST',
+        hostname: url.hostname,
+        path: url.pathname + (url.search || ''),
+        port: url.port ? Number(url.port) : 443,
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': apiKey,
+          'Content-Length': Buffer.byteLength(body).toString(),
+          'User-Agent': 'BKGA-VSCode/1.0 CustomDictionary',
+        },
+        rejectUnauthorized: false,
+      };
+
+      out.appendLine('--- Bareun Custom Dictionary Request ---');
+      out.appendLine(`Endpoint -> ${opts.method} https://${opts.hostname}${opts.path}`);
+      out.appendLine(`Payload length: ${Buffer.byteLength(body)}`);
+
+      return await new Promise<boolean>((resolve) => {
+        const req = https.request(opts, (res) => {
+          let data = '';
+          res.setEncoding('utf8');
+          res.on('data', (chunk) => (data += chunk));
+          res.on('end', () => {
+            out.appendLine(`Custom dictionary response status: ${res.statusCode}`);
+            out.appendLine(`Custom dictionary response body: ${data}`);
+            if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          });
+        });
+
+        req.on('error', (err) => {
+          out.appendLine(`Custom dictionary request error: ${String(err)}`);
+          resolve(false);
+        });
+
+        req.setTimeout(5000, () => {
+          req.destroy();
+          out.appendLine('Custom dictionary request timeout');
+          resolve(false);
+        });
+
+        req.write(body);
+        req.end();
+      });
+    } catch (err) {
+      out.appendLine(`Custom dictionary request failed: ${String(err)}`);
+      return false;
     }
   }
 }

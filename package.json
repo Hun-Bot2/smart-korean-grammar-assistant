@@ -71,6 +71,61 @@
           "type": "boolean",
           "default": true,
           "description": "Markdown 문서에서 영어 텍스트에 대해서는 문법 진단을 생성하지 않습니다."
+        },
+        "bkga.customDictionary.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Bareun 사용자 사전 연동을 활성화합니다."
+        },
+        "bkga.customDictionary.endpoint": {
+          "type": "string",
+          "default": "",
+          "description": "Bareun 사용자 사전을 업데이트할 API 엔드포인트 (예: https://api.bareun.ai/bareun.CustomDictionaryService/UpdateCustomDictionary)."
+        },
+        "bkga.customDictionary.domainName": {
+          "type": "string",
+          "default": "",
+          "description": "사용자 사전을 식별할 도메인 이름 (영문/숫자/-/_)."
+        },
+        "bkga.customDictionary.npSet": {
+          "type": "array",
+          "description": "고유명사(단일 명사) 사전에 추가할 단어 목록.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "bkga.customDictionary.cpSet": {
+          "type": "array",
+          "description": "복합명사 사전에 추가할 단어 목록.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "bkga.customDictionary.cpCaretSet": {
+          "type": "array",
+          "description": "복합명사 분리(^) 사전에 추가할 단어 목록.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "bkga.customDictionary.vvSet": {
+          "type": "array",
+          "description": "동사 사전에 추가할 단어 목록.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "bkga.customDictionary.vaSet": {
+          "type": "array",
+          "description": "형용사 사전에 추가할 단어 목록.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
         }
       }
     },
@@ -110,15 +165,6 @@
           "light": "#0066cc",
           "highContrast": "#4488ff"
         }
-      },
-      {
-        "id": "bkga.english",
-        "description": "영어 관련 오류 밑줄 색상",
-        "defaults": {
-          "dark": "#ff66cc",
-          "light": "#ff3399",
-          "highContrast": "#ff66cc"
-        }
       }
     ],
     "commands": [
@@ -145,6 +191,26 @@
       {
         "command": "bkga.showOutput",
         "title": "Korean Grammar: 문제 패널 보기"
+      },
+      {
+        "command": "bkga.syncCustomDictionary",
+        "title": "Korean Grammar: 사용자 사전 동기화"
+      },
+      {
+        "command": "bkga.addSelectionToCustomDictionary",
+        "title": "Korean Grammar: 선택 텍스트를 사용자 사전에 추가"
+      },
+      {
+        "command": "bkga.showCustomDictionary",
+        "title": "Korean Grammar: 사용자 사전 패널 열기"
+      },
+      {
+        "command": "bkga.addWordToCustomDictionary",
+        "title": "Korean Grammar: 단어를 사용자 사전에 추가"
+      },
+      {
+        "command": "bkga.removeWordFromCustomDictionary",
+        "title": "Korean Grammar: 단어를 사용자 사전에서 삭제"
       }
     ],
     "keybindings": [
@@ -165,6 +231,12 @@
         "key": "ctrl+k g f",
         "mac": "cmd+k g f",
         "when": "editorTextFocus && editorLangId == markdown && editorHasSelection"
+      },
+      {
+        "command": "bkga.showCustomDictionary",
+        "key": "ctrl+k g d",
+        "mac": "cmd+k g d",
+        "when": "editorTextFocus"
       }
     ]
   },

@@ -5,10 +5,14 @@ import { BkgaCodeActionProvider } from './codeActions';
 import { BkgaHoverProvider } from './hoverProvider';
 import { StatusBarManager } from './status';
 import { applyDecorations, clearDecorations, disposeDecorations } from './decorations';
+import { CustomDictionaryService } from './customDictionary';
+import { DictKey } from './customDictionaryMeta';
+import { CustomDictionaryPanel } from './customDictionaryPanel';
 
 let diagnosticsManager: DiagnosticsManager | undefined;
 let statusBarManager: StatusBarManager | undefined;
 let outputChannel: vscode.OutputChannel | undefined;
+let customDictionaryService: CustomDictionaryService | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration();
@@ -23,6 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
   
   // Share output channel with BareunClient
   BareunClient.setOutputChannel(outputChannel);
+  customDictionaryService = new CustomDictionaryService(outputChannel);
 
   // Create diagnostics manager with status callback
   diagnosticsManager = new DiagnosticsManager((state, issueCount) => {
@@ -122,7 +127,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerHoverProvider(
       { language: 'markdown' },
-      new BkgaHoverProvider(diagnosticsManager!)
+      new BkgaHoverProvider(diagnosticsManager!, customDictionaryService!)
     )
   );
 
@@ -255,6 +260,103 @@ export async function activate(context: vscode.ExtensionContext) {
     })
   );
 
+  context.subscriptions.push(
+    vscode.commands.registerCommand('bkga.syncCustomDictionary', async () => {
+      await customDictionaryService?.sync();
+      CustomDictionaryPanel.refresh();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('bkga.addSelectionToCustomDictionary', async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage('활성화된 에디터가 없습니다.');
+        return;
+      }
+
+      const selection = editor.selection;
+      if (selection.isEmpty) {
+        vscode.window.showWarningMessage('사용자 사전에 추가할 텍스트를 선택해주세요.');
+        return;
+      }
+
+      const text = editor.document.getText(selection).trim();
+      if (!text) {
+        vscode.window.showWarningMessage('선택한 텍스트가 비어 있습니다.');
+        return;
+      }
+
+      const dictType = await vscode.window.showQuickPick(
+        [
+          { label: '고유명사 (np_set)', value: 'npSet', detail: '인명, 작품명 등 단일 명사' },
+          { label: '복합명사 (cp_set)', value: 'cpSet', detail: '여러 단어로 구성된 복합 명사' },
+          { label: '복합명사 분리 (cp_caret_set)', value: 'cpCaretSet', detail: '^ 로 분리된 복합명사' },
+          { label: '동사 (vv_set)', value: 'vvSet', detail: '새로운 동사/용언' },
+          { label: '형용사 (va_set)', value: 'vaSet', detail: '새로운 형용사/형용사적 표현' },
+        ],
+        { placeHolder: '추가할 사용자 사전 종류를 선택하세요.' }
+      );
+
+      if (!dictType) {
+        return;
+      }
+
+      const added = await customDictionaryService?.addEntry(text, dictType.value as DictKey);
+      if (added) {
+        await customDictionaryService?.sync({ silent: true });
+        CustomDictionaryPanel.refresh();
+        vscode.window.showInformationMessage(`"${text}"을(를) 사용자 사전에 추가했습니다.`);
+      }
+    })
+  );
+
+  const extractArgs = (raw: any): { word: string; dictKey: DictKey } | undefined => {
+    const payload = Array.isArray(raw) ? raw[0] : raw;
+    if (!payload || typeof payload.word !== 'string' || typeof payload.dictKey !== 'string') {
+      return undefined;
+    }
+    return payload as { word: string; dictKey: DictKey };
+  };
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('bkga.addWordToCustomDictionary', async (rawArgs) => {
+      const args = extractArgs(rawArgs);
+      if (!args) {
+        vscode.window.showWarningMessage('추가할 단어 정보가 올바르지 않습니다.');
+        return;
+      }
+      const added = await customDictionaryService?.addEntry(args.word, args.dictKey);
+      if (added) {
+        await customDictionaryService?.sync({ silent: true });
+        CustomDictionaryPanel.refresh();
+        vscode.window.showInformationMessage(`"${args.word}"을(를) 사용자 사전에 추가했습니다.`);
+      }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('bkga.removeWordFromCustomDictionary', async (rawArgs) => {
+      const args = extractArgs(rawArgs);
+      if (!args) {
+        vscode.window.showWarningMessage('삭제할 단어 정보가 올바르지 않습니다.');
+        return;
+      }
+      const removed = await customDictionaryService?.removeEntry(args.word, args.dictKey);
+      if (removed) {
+        await customDictionaryService?.sync({ silent: true });
+        CustomDictionaryPanel.refresh();
+        vscode.window.showInformationMessage(`"${args.word}"을(를) 사용자 사전에서 삭제했습니다.`);
+      }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('bkga.showCustomDictionary', async () => {
+      CustomDictionaryPanel.render(context);
+    })
+  );
+
   // watch configuration changes and re-analyze
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
@@ -270,6 +372,7 @@ export async function activate(context: vscode.ExtensionContext) {
           }
         });
       }
+      CustomDictionaryPanel.refresh();
     })
   );
 }
