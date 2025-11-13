@@ -48,7 +48,8 @@ export class BareunClient {
         headers: {
           'Content-Type': 'application/json',
           'api-key': apiKey,
-          'Content-Length': Buffer.byteLength(payload).toString()
+           'Content-Length': Buffer.byteLength(payload).toString(),
+           'User-Agent': 'BKGA-VSCode/1.0',
         },
         rejectUnauthorized: false  // SSL certificate verification disabled (Bareun API cert chain issue)
       };

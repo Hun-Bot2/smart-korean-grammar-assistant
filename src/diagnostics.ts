@@ -25,6 +25,10 @@ export class DiagnosticsManager {
     return this.collection.get(uri) || [];
   }
 
+  clearDiagnostics(uri: vscode.Uri) {
+    this.collection.delete(uri);
+  }
+
   async analyzeDocument(doc: vscode.TextDocument) {
     if (!vscode.workspace.getConfiguration().get('bkga.enabled')) {
       this.collection.delete(doc.uri);
@@ -34,36 +38,61 @@ export class DiagnosticsManager {
 
     this.statusCallback?.('analyzing');
 
-    const endpoint = vscode.workspace.getConfiguration().get<string>('bkga.bareun.endpoint') || '';
-    const apiKey = vscode.workspace.getConfiguration().get<string>('bkga.bareun.apiKey') || undefined;
+    const config = vscode.workspace.getConfiguration();
+    const endpoint = config.get<string>('bkga.bareun.endpoint') || '';
+    const apiKey = config.get<string>('bkga.bareun.apiKey') || undefined;
+    const ignoreEnglishInMarkdown = config.get<boolean>('bkga.ignoreEnglishInMarkdown', true);
+    const fullText = doc.getText();
 
     let issues: BareunIssue[] = [];
     if (endpoint) {
       try {
-        issues = await BareunClient.analyze(endpoint, apiKey, doc.getText());
+        issues = await BareunClient.analyze(endpoint, apiKey, fullText);
       } catch (err) {
         // fall back to local heuristics
         this.statusCallback?.('error');
-        issues = this.localHeuristics(doc.getText());
+        issues = this.localHeuristics(fullText);
       }
     } else {
-      issues = this.localHeuristics(doc.getText());
+      issues = this.localHeuristics(fullText);
     }
 
-    // For local heuristics only: Filter out issues in code blocks
-    // (Bareun API already handles this, so only filter if using local heuristics)
+    // Markdown inline/code fences often contain commands or English.
+    // Skip diagnostics that overlap these ranges to avoid false positives.
+    const inlineCodeOffsets =
+      doc.languageId === 'markdown' ? this.computeInlineCodeOffsets(fullText) : [];
+
     const diagnostics: vscode.Diagnostic[] = issues
       .map((iss) => {
+        if (
+          doc.languageId === 'markdown' &&
+          this.intersectsInlineCode(iss.start, iss.end, inlineCodeOffsets)
+        ) {
+          return null;
+        }
+
         const startPos = doc.positionAt(iss.start);
         const endPos = doc.positionAt(iss.end);
         const range = new vscode.Range(startPos, endPos);
+        const snippet = doc.getText(range);
+
+        if (ignoreEnglishInMarkdown && doc.languageId === 'markdown' && this.isLikelyEnglish(snippet)) {
+          return null;
+        }
+
         const diag = new vscode.Diagnostic(range, iss.message, this.mapSeverity(iss.severity));
         diag.source = 'BKGA';
+        
+        // Set diagnostic tags based on error category for color coding
+        const category = this.extractCategory(iss.message);
+        diag.code = category;
+        
         if (iss.suggestion) {
           (diag as any).suggestion = iss.suggestion;
         }
         return diag;
-      });
+      })
+      .filter((diag): diag is vscode.Diagnostic => Boolean(diag));
 
     this.collection.set(doc.uri, diagnostics);
     this.statusCallback?.('success', diagnostics.length);
@@ -78,6 +107,12 @@ export class DiagnosticsManager {
       default:
         return vscode.DiagnosticSeverity.Warning;
     }
+  }
+
+  private extractCategory(message: string): string {
+    // Extract category from Bareun API message format: "CATEGORY: text"
+    const match = message.match(/^([A-Z_]+):/);
+    return match ? match[1] : 'UNKNOWN';
   }
 
   // Very small heuristic checks for Korean spacing/typos to provide offline behavior
@@ -103,5 +138,62 @@ export class DiagnosticsManager {
     }
 
     return issues;
+  }
+
+  private computeInlineCodeOffsets(text: string): Array<{ start: number; end: number }> {
+    const spans: Array<{ start: number; end: number }> = [];
+    let i = 0;
+
+    while (i < text.length) {
+      if (text[i] !== '`') {
+        i++;
+        continue;
+      }
+
+      let fenceLen = 1;
+      while (i + fenceLen < text.length && text[i + fenceLen] === '`') {
+        fenceLen++;
+      }
+
+      const fence = '`'.repeat(fenceLen);
+      const contentStart = i;
+      i += fenceLen;
+      const closing = text.indexOf(fence, i);
+      if (closing === -1) {
+        break;
+      }
+
+      spans.push({ start: contentStart, end: closing + fenceLen });
+      i = closing + fenceLen;
+    }
+
+    return spans;
+  }
+
+  private intersectsInlineCode(
+    start: number,
+    end: number,
+    spans: Array<{ start: number; end: number }>
+  ): boolean {
+    if (!spans.length) {
+      return false;
+    }
+    return spans.some((span) => Math.max(span.start, start) < Math.min(span.end, end));
+  }
+
+  private isLikelyEnglish(text: string): boolean {
+    if (!text) {
+      return false;
+    }
+    const cleaned = text.replace(/[`*_#>~.,!?'"()\[\]{}:;+\-=\\/0-9\s]/g, '');
+    if (!cleaned) {
+      return false;
+    }
+    const hasHangul = /[가-힣]/.test(cleaned);
+    if (hasHangul) {
+      return false;
+    }
+    const latinOnly = cleaned.replace(/[^A-Za-z]/g, '');
+    return latinOnly.length > 0;
   }
 }

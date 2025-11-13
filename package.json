@@ -66,9 +66,61 @@
           },
           "default": ["**/*.md"],
           "description": "Glob patterns for files to analyze (e.g., ['content/blog/**/*.md']). Empty array means all .md files."
+        },
+        "bkga.ignoreEnglishInMarkdown": {
+          "type": "boolean",
+          "default": true,
+          "description": "Markdown 문서에서 영어 텍스트에 대해서는 문법 진단을 생성하지 않습니다."
         }
       }
     },
+    "colors": [
+      {
+        "id": "bkga.spelling",
+        "description": "맞춤법 오류 밑줄 색상",
+        "defaults": {
+          "dark": "#ff4444",
+          "light": "#ff0000",
+          "highContrast": "#ff4444"
+        }
+      },
+      {
+        "id": "bkga.spacing",
+        "description": "띄어쓰기 오류 밑줄 색상",
+        "defaults": {
+          "dark": "#ffcc00",
+          "light": "#ff9900",
+          "highContrast": "#ffcc00"
+        }
+      },
+      {
+        "id": "bkga.standard",
+        "description": "표준어 의심 밑줄 색상",
+        "defaults": {
+          "dark": "#bb44ff",
+          "light": "#9933cc",
+          "highContrast": "#bb44ff"
+        }
+      },
+      {
+        "id": "bkga.statistical",
+        "description": "통계적 교정 밑줄 색상",
+        "defaults": {
+          "dark": "#4488ff",
+          "light": "#0066cc",
+          "highContrast": "#4488ff"
+        }
+      },
+      {
+        "id": "bkga.english",
+        "description": "영어 관련 오류 밑줄 색상",
+        "defaults": {
+          "dark": "#ff66cc",
+          "light": "#ff3399",
+          "highContrast": "#ff66cc"
+        }
+      }
+    ],
     "commands": [
       {
         "command": "bkga.openSettings",

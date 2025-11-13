@@ -4,6 +4,7 @@ import { BareunClient } from './bareunClient';
 import { BkgaCodeActionProvider } from './codeActions';
 import { BkgaHoverProvider } from './hoverProvider';
 import { StatusBarManager } from './status';
+import { applyDecorations, clearDecorations, disposeDecorations } from './decorations';
 
 let diagnosticsManager: DiagnosticsManager | undefined;
 let statusBarManager: StatusBarManager | undefined;
@@ -50,43 +51,65 @@ export async function activate(context: vscode.ExtensionContext) {
     });
   }
 
-  // analyze all open markdown documents
-  vscode.workspace.textDocuments.forEach((doc) => {
-    if (shouldAnalyze(doc)) {
-      diagnosticsManager?.analyzeDocument(doc);
-    }
-  });
+  function refreshDecorations(doc: vscode.TextDocument) {
+    vscode.window.visibleTextEditors.forEach((editor) => {
+      if (editor.document.uri.toString() !== doc.uri.toString()) {
+        return;
+      }
 
+      if (!shouldAnalyze(doc)) {
+        clearDecorations(editor);
+        return;
+      }
+
+      const diagnostics = diagnosticsManager?.getDiagnostics(doc.uri) || [];
+      applyDecorations(editor, diagnostics);
+    });
+  }
+
+  // Analyze active document
+  if (vscode.window.activeTextEditor) {
+    const doc = vscode.window.activeTextEditor.document;
+    if (shouldAnalyze(doc)) {
+      diagnosticsManager.analyzeDocument(doc).then(() => {
+        refreshDecorations(doc);
+      });
+    } else {
+      diagnosticsManager.clearDiagnostics(doc.uri);
+      refreshDecorations(doc);
+    }
+  }
+
+  // Apply decorations when changing active editor
   context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument((doc) => {
-      if (shouldAnalyze(doc)) {
-        diagnosticsManager?.analyzeDocument(doc);
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor) {
+        refreshDecorations(editor.document);
       }
     })
   );
 
-  // Debounced analysis to avoid overloading during rapid typing
-  const pending = new Map<string, NodeJS.Timeout>();
-  const scheduleAnalyze = (doc: vscode.TextDocument) => {
-    const key = doc.uri.toString();
-    if (pending.has(key)) clearTimeout(pending.get(key)!);
-    const t = setTimeout(() => {
-      diagnosticsManager?.analyzeDocument(doc);
-      pending.delete(key);
-    }, 350);
-    pending.set(key, t);
-  };
-
+  // Re-analyze on document change (debounce to avoid excessive calls)
+  let debounceTimer: NodeJS.Timeout | undefined;
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
-      const doc = e.document;
-      if (shouldAnalyze(doc)) {
-        scheduleAnalyze(doc);
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
       }
-    })
-  );
+      debounceTimer = setTimeout(() => {
+        const targetDoc = e.document;
+        if (!shouldAnalyze(targetDoc)) {
+          diagnosticsManager?.clearDiagnostics(targetDoc.uri);
+          refreshDecorations(targetDoc);
+          return;
+        }
 
-  // register code action provider for markdown
+        diagnosticsManager?.analyzeDocument(targetDoc)?.then(() => {
+          refreshDecorations(targetDoc);
+        });
+      }, 350);
+    })
+  );  // register code action provider for markdown
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       { language: 'markdown' },
@@ -165,7 +188,9 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.showWarningMessage('마크다운 문서만 분석할 수 있습니다.');
         return;
       }
-      diagnosticsManager?.analyzeDocument(editor.document);
+      diagnosticsManager?.analyzeDocument(editor.document)?.then(() => {
+        refreshDecorations(editor.document);
+      });
       vscode.window.showInformationMessage('문서 분석을 시작합니다...');
     })
   );
@@ -235,7 +260,14 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration('bkga')) {
         vscode.workspace.textDocuments.forEach((doc) => {
-          if (doc.languageId === 'markdown') diagnosticsManager?.analyzeDocument(doc);
+          if (shouldAnalyze(doc)) {
+            diagnosticsManager?.analyzeDocument(doc)?.then(() => {
+              refreshDecorations(doc);
+            });
+          } else {
+            diagnosticsManager?.clearDiagnostics(doc.uri);
+            refreshDecorations(doc);
+          }
         });
       }
     })
@@ -245,4 +277,5 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
   diagnosticsManager?.dispose();
   statusBarManager?.dispose();
+  disposeDecorations();
 }

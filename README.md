@@ -1,8 +1,15 @@
 # Bareun Korean Grammar Assistant (BKGA)
 
-Bareun NLP 엔진(클라우드/로컬)을 사용해 마크다운 문서의 한국어 문법·맞춤법·띄어쓰기를 검사하고, 인라인 진단, 호버 설명, 빠른 수정을 제공합니다.
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Hun-Bot2/smart-korean-grammer-assistant/releases)
+[![Release](https://img.shields.io/github/v/release/Hun-Bot2/smart-korean-grammer-assistant)](https://github.com/Hun-Bot2/smart-korean-grammer-assistant/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+Bareun NLP 엔진을 사용해 마크다운 문서의 한국어 문법·맞춤법·띄어쓰기를 검사하고, 인라인 진단, 호버 설명, 빠른 수정을 제공합니다.
 
 https://bareun.ai/home
+
+<!-- ![BKGA Demo](./assets/demo.gif) -->
+<!-- TODO: Add demo GIF showing real-time grammar checking -->
 
 ## Installation
 
@@ -20,13 +27,43 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 
 ## Features
 
+### 오류 유형별 색상 구분
+- **맞춤법 오류**: 🔴 빨간색 밑줄
+- **띄어쓰기 오류**: 🟡 노란색 밑줄  
+- **표준어 의심**: 🟣 보라색 밑줄
+- **통계적 교정**: 🔵 파란색 밑줄
+- **영어 관련**: 🩷 핑크색 밑줄
+
+### 실시간 분석 및 수정
+.md 확장자인 markdown(마크다운) 문서에서만 작동됩니다! -> 확장자를 추가하시고 싶다면 아래 메일로 연락주세요!
+
 - **인라인 검사**: 마크다운 파일의 문법/맞춤법/띄어쓰기 문제를 밑줄로 표시합니다.
-- **Hover 설명**: 원문, 제안, 심각도 정보를 간단히 보여 줍니다.
-- **빠른 수정**: 한 번에 수정 적용이 가능합니다 (`Cmd+.`).
+- **Hover 설명**: 원문, 대치어, 도움말을 보여 줍니다.
+- **빠른 수정**: 개별 오류를 간단하게 수정 (`Cmd+.`).
+- **선택 영역 자동 수정**: 여러 줄을 선택하여 (Cmd+A) 한번에 모든 오류 수정 (`Cmd+K G F`).
+
+### 사용자 편의성
 - **상태 표시 줄**: 실시간 분석 상태와 문제 개수를 표시합니다.
 - **키보드 단축키**: 토글/분석/수정 기능에 빠르게 접근할 수 있습니다.
-- **마크다운 인식**: 코드 블록과 인라인 코드는 분석에서 제외합니다.
-- **엔진 선택**: Bareun 클라우드 API 또는 로컬 휴리스틱을 사용할 수 있습니다.
+- **마크다운 지원**: Bareun API가 코드 블록과 인라인 코드를 자동으로 분석에서 제외합니다.
+
+### Screenshots
+
+#### Inline Diagnostics
+![Inline Diagnostics](./assets/inline-diagnostics.png)
+<!-- TODO: Add screenshot showing underlined errors in markdown -->
+
+#### Hover Information
+![Hover Information](./assets/hover-info.png)
+<!-- TODO: Add screenshot of hover tooltip with error details -->
+
+#### Quick Fix
+![Quick Fix](./assets/quick-fix.png)
+<!-- TODO: Add screenshot of quick fix menu -->
+
+#### Fix Selection (Auto-fix multiple lines)
+![Fix Selection](./assets/fix-selection.png)
+<!-- TODO: Add screenshot of selecting and fixing multiple lines at once -->
 
 ## Keyboard Shortcuts
 
@@ -34,30 +71,38 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 |---------|-----|---------------|-------------|
 | Toggle Enable/Disable | `Cmd+K G E` | `Ctrl+K G E` | 활성화/비활성화 |
 | Analyze Document | `Cmd+K G A` | `Ctrl+K G A` | 현재 문서 분석 |
-| Quick Fix | `Cmd+K G F` | `Ctrl+K G F` | 빠른 수정 적용 |
+| Fix Selection | `Cmd+K G F` | `Ctrl+K G F` | 선택 영역 자동 수정 (여러 줄 한번에) |
 
-> 팁: 표준 단축키 `Cmd+.`(또는 `Ctrl+.`)로 빠른 수정 메뉴를 열 수 있습니다.
+> **팁**: 
+> - 개별 오류 수정: `Cmd+.` (또는 `Ctrl+.`)로 빠른 수정 메뉴 열기
+> - 여러 줄 한번에 수정: 텍스트 선택 후 `Cmd+K G F`
 
 ## Configuration
 
-- `bkga.bareun.endpoint` — Bareun NLP 엔드포인트 (기본값: `https://api.bareun.ai/bareun.RevisionService/CorrectError`).
-- `bkga.bareun.apiKey` — Bareun 클라우드 서비스 API 키(클라우드 API 사용 시 필요).
-- `bkga.enabled` — bkga 진단 사용 여부(기본값: `true`).
+- `bkga.bareun.endpoint` — Bareun NLP 엔드포인트 URL
+- `bkga.bareun.apiKey` — Bareun API 키 (**필수**)
+- `bkga.enabled` — Extension 활성화 여부 (기본값: `true`)
+- `bkga.includePaths` — 분석할 파일 패턴 (기본값: `["**/*.md"]`)
+- `bkga.ignoreEnglishInMarkdown` — 마크다운 문서에서 영어 텍스트는 진단에서 제외 (기본값: `true`)
 
 ### Getting a Bareun API Key
 
 1. [Bareun NLP](https://bareun.ai/)에서 가입합니다.
 2. 대시보드에서 API 키를 생성합니다.
-3. VS Code 설정에 키를 추가합니다: `설정 > 확장(Extensions) > 스마트 한국어 문법 도우미`.
+3. VS Code 설정에 키를 추가합니다: `설정 > 확장(Extensions) > Bareun Korean Grammar Assistant`.
 
 ## Usage
 
+### 기본 사용법
 1. 마크다운 파일(`.md`)을 엽니다.
-2. bkga가 문서를 자동으로 분석합니다.
-3. 문법/맞춤법 문제는 노란 밑줄로 표시됩니다.
+2. BKGA가 문서를 자동으로 분석합니다.
+3. 문법/맞춤법 문제는 밑줄로 표시됩니다.
 4. 밑줄 친 텍스트에 마우스를 올려 상세 내용을 확인합니다.
-5. 전구 아이콘을 클릭하거나 `Cmd+.`를 눌러 빠른 수정을 적용합니다.
-6. 상태 표시 줄(오른쪽 하단)에서 문제 개수를 확인합니다.
+
+### 수정 방법
+- **개별 수정**: 전구 아이콘 클릭 또는 `Cmd+.`로 빠른 수정
+- **여러 줄 한번에**: 텍스트 선택 후 `Cmd+K G F`로 자동 수정
+- **상태 확인**: 오른쪽 하단 상태 표시줄에서 문제 개수 확인
 
 ## Development
 
@@ -72,13 +117,26 @@ npm test
 
 - `BKGA` — 대기 상태
 - `BKGA: 분석 중...` — 문서 분석 중
-- `BKGA: 문제 없음` — 문제없음
+- `BKGA: 문제없음` — 문제없음
 - `BKGA: N개 문제` — 문제 N 개 감지
 - `BKGA: 오류` — 분석 오류
 
 ## Notes
 
-- 이 확장은 한국어 마크다운 블로그 글에 최적화되어 있습니다.
-- 코드 블록(` ``` `)과 인라인 코드(`` ` ``)는 자동으로 분석에서 제외됩니다.
-- Bareun API를 사용할 수 없는 경우, 기본 로컬 휴리스틱(이중 공백, 줄 끝 공백)을 사용합니다.
-- 빠르게 타이핑할 때 과도한 API 호출을 막기 위해 분석은 350ms 디바운스됩니다.
+- 이 확장은 한국어 마크다운 문서 작성에 최적화되어 있습니다.
+- **Bareun API 키가 필수입니다.** [bareun.ai](https://bareun.ai/)에서 무료로 발급받을 수 있습니다.
+- API 키 없이는 기본적인 공백 검사만 수행됩니다.
+- 코드 블록(` ``` `)과 인라인 코드(`` ` ``)는 Bareun API가 자동으로 분석에서 제외합니다.
+- 빠른 타이핑 시 과도한 API 호출을 방지하기 위해 350ms 디바운스가 적용됩니다.
+
+## Contributing
+
+피드백,버그 리포트, 기능 제안, 풀 리퀘스트를 환영합니다!
+
+- **Issues**: [GitHub Issues](https://github.com/Hun-Bot2/smart-korean-grammer-assistant/issues)
+- **Repository**: [GitHub](https://github.com/Hun-Bot2/smart-korean-grammer-assistant)
+- **Email**: [surtrcode@gmail.com](mailto:surtrcode@gmail.com)
+
+## License
+
+MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
