@@ -75,8 +75,12 @@ export class DiagnosticsManager {
         const endPos = doc.positionAt(iss.end);
         const range = new vscode.Range(startPos, endPos);
         const snippet = doc.getText(range);
+        const category = this.extractCategory(iss.message);
 
-        if (ignoreEnglishInMarkdown && doc.languageId === 'markdown' && this.isLikelyEnglish(snippet)) {
+        if (
+          doc.languageId === 'markdown' &&
+          this.shouldIgnoreSnippet(snippet, category, ignoreEnglishInMarkdown)
+        ) {
           return null;
         }
 
@@ -84,7 +88,6 @@ export class DiagnosticsManager {
         diag.source = 'BKGA';
         
         // Set diagnostic tags based on error category for color coding
-        const category = this.extractCategory(iss.message);
         diag.code = category;
         
         if (iss.suggestion) {
@@ -181,6 +184,37 @@ export class DiagnosticsManager {
     return spans.some((span) => Math.max(span.start, start) < Math.min(span.end, end));
   }
 
+  private shouldIgnoreSnippet(snippet: string, category: string, ignoreEnglish: boolean): boolean {
+    if (!snippet) {
+      return true;
+    }
+
+    const trimmed = snippet.trim();
+    if (!trimmed) {
+      return true;
+    }
+
+    if (ignoreEnglish && this.isLikelyEnglish(trimmed)) {
+      return true;
+    }
+
+    if (this.containsUrlOrEmail(trimmed) || this.containsMarkdownLink(trimmed)) {
+      return true;
+    }
+
+    if (category === 'SPACING') {
+      if (
+        this.containsShortcutPattern(trimmed) ||
+        this.containsHangulCommaRun(trimmed) ||
+        this.containsAllCapsAscii(trimmed)
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private isLikelyEnglish(text: string): boolean {
     if (!text) {
       return false;
@@ -195,5 +229,32 @@ export class DiagnosticsManager {
     }
     const latinOnly = cleaned.replace(/[^A-Za-z]/g, '');
     return latinOnly.length > 0;
+  }
+
+  private containsShortcutPattern(text: string): boolean {
+    const shortcutRegex = /\b(?:cmd|ctrl|shift|alt|option|enter|esc|tab|space|backspace|delete|del)\b/i;
+    if (!shortcutRegex.test(text)) {
+      return false;
+    }
+    return /\+/.test(text) || /[\(\[]/.test(text);
+  }
+
+  private containsMarkdownLink(text: string): boolean {
+    return /\[[^\]]+\]\([^)]+\)/.test(text);
+  }
+
+  private containsUrlOrEmail(text: string): boolean {
+    if (/https?:\/\/\S+/i.test(text)) {
+      return true;
+    }
+    return /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(text);
+  }
+
+  private containsHangulCommaRun(text: string): boolean {
+    return /[가-힣],[가-힣]/.test(text);
+  }
+
+  private containsAllCapsAscii(text: string): boolean {
+    return /\b[A-Z0-9]{3,}\b/.test(text);
   }
 }
