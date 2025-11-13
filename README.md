@@ -36,6 +36,7 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 
 ### 실시간 분석 및 수정
 .md 확장자인 markdown(마크다운) 문서에서만 작동됩니다! -> 확장자를 추가하시고 싶다면 아래 메일로 연락주세요!
+문서에 들어가서 MAC : `Cmd+S` / WINDOWS : `CTRL+S`를 눌러도 작동합니다!!
 
 - **인라인 검사**: 마크다운 파일의 문법/맞춤법/띄어쓰기 문제를 밑줄로 표시합니다.
 - **Hover 설명**: 원문, 대치어, 도움말을 보여 줍니다.
