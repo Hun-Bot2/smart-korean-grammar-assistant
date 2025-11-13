@@ -202,6 +202,10 @@ export class DiagnosticsManager {
       return true;
     }
 
+    if (this.containsParentheticalList(trimmed)) {
+      return true;
+    }
+
     if (category === 'SPACING') {
       if (
         this.containsShortcutPattern(trimmed) ||
@@ -256,5 +260,22 @@ export class DiagnosticsManager {
 
   private containsAllCapsAscii(text: string): boolean {
     return /\b[A-Z0-9]{3,}\b/.test(text);
+  }
+
+  private containsParentheticalList(text: string): boolean {
+    const match = /\(([^)]+)\)/.exec(text);
+    if (!match) {
+      return false;
+    }
+    const inner = match[1];
+    if (!/[가-힣]/.test(inner)) {
+      return false;
+    }
+    const parts = inner.split(',').map((part) => part.trim()).filter(Boolean);
+    if (parts.length < 2) {
+      return false;
+    }
+    const validPart = /^[가-힣0-9\s·\-]+$/;
+    return parts.every((part) => validPart.test(part));
   }
 }
