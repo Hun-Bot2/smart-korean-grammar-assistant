@@ -42,6 +42,7 @@ export class DiagnosticsManager {
     const endpoint = config.get<string>('bkga.bareun.endpoint') || '';
     const apiKey = config.get<string>('bkga.bareun.apiKey') || undefined;
     const ignoreEnglishInMarkdown = config.get<boolean>('bkga.ignoreEnglishInMarkdown', true);
+    const docVersion = doc.version;
     const fullText = doc.getText();
 
     let issues: BareunIssue[] = [];
@@ -55,6 +56,10 @@ export class DiagnosticsManager {
       }
     } else {
       issues = this.localHeuristics(fullText);
+    }
+
+    if (doc.isClosed || doc.version !== docVersion) {
+      return;
     }
 
     // Markdown inline/code fences often contain commands or English.
@@ -134,8 +139,15 @@ export class DiagnosticsManager {
     let pos = 0;
     for (const line of lines) {
       if (line.endsWith(' ')) {
-        const start = pos + line.length - 1;
-        issues.push({ start, end: pos + line.length, message: '행 끝에 불필요한 공백이 있습니다.', suggestion: line.trimEnd(), severity: 'info' });
+        const trimmedLength = line.trimEnd().length;
+        const start = pos + trimmedLength;
+        issues.push({
+          start,
+          end: pos + line.length,
+          message: '행 끝에 불필요한 공백이 있습니다.',
+          suggestion: '',
+          severity: 'info',
+        });
       }
       pos += line.length + 1; // + newline
     }
