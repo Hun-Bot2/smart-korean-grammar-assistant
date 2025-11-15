@@ -44,7 +44,7 @@
         "bkga.bareun.endpoint": {
           "type": "string",
           "default": "",
-          "description": "Bareun NLP endpoint (e.g. https://api.bareun.ai/analyze). Leave empty to use local heuristics."
+          "description": "Bareun NLP endpoint (default: https://api.bareun.ai/bareun.RevisionService/CorrectError). Leave empty to use the default cloud endpoint or set a custom URL."
         },
         "bkga.bareun.apiKey": {
           "type": "string",
@@ -79,7 +79,7 @@
         "bkga.customDictionary.endpoint": {
           "type": "string",
           "default": "",
-          "description": "Bareun 사용자 사전을 업데이트할 API 엔드포인트 (예: https://api.bareun.ai/bareun.CustomDictionaryService/UpdateCustomDictionary)."
+          "description": "Bareun 사용자 사전을 업데이트할 API 엔드포인트 (기본: https://api.bareun.ai/bareun.CustomDictionaryService/UpdateCustomDictionary). 비워 두면 기본 엔드포인트를 사용합니다."
         },
         "bkga.customDictionary.domainName": {
           "type": "string",
@@ -169,47 +169,47 @@
     "commands": [
       {
         "command": "bkga.openSettings",
-        "title": "Korean Grammar: 설정 열기"
+        "title": "BKGA (Bareun Korean Grammar): 설정 열기"
       },
       {
         "command": "bkga.debugStatus",
-        "title": "Korean Grammar: Debug Status"
+        "title": "BKGA (Bareun Korean Grammar): Debug Status"
       },
       {
         "command": "bkga.toggleEnabled",
-        "title": "Korean Grammar: 활성화/비활성화"
+        "title": "BKGA (Bareun Korean Grammar): 활성화/비활성화"
       },
       {
         "command": "bkga.analyzeDocument",
-        "title": "Korean Grammar: 현재 문서 분석"
+        "title": "BKGA (Bareun Korean Grammar): 현재 문서 분석"
       },
       {
         "command": "bkga.fixSelection",
-        "title": "Korean Grammar: 선택 영역 자동 수정"
+        "title": "BKGA (Bareun Korean Grammar): 선택 영역 자동 수정"
       },
       {
         "command": "bkga.showOutput",
-        "title": "Korean Grammar: 문제 패널 보기"
+        "title": "BKGA (Bareun Korean Grammar): 문제 패널 보기"
       },
       {
         "command": "bkga.syncCustomDictionary",
-        "title": "Korean Grammar: 사용자 사전 동기화"
+        "title": "BKGA (Bareun Korean Grammar): 사용자 사전 동기화"
       },
       {
         "command": "bkga.addSelectionToCustomDictionary",
-        "title": "Korean Grammar: 선택 텍스트를 사용자 사전에 추가"
+        "title": "BKGA (Bareun Korean Grammar): 선택 텍스트를 사용자 사전에 추가"
       },
       {
         "command": "bkga.showCustomDictionary",
-        "title": "Korean Grammar: 사용자 사전 패널 열기"
+        "title": "BKGA (Bareun Korean Grammar): 사용자 사전 패널 열기"
       },
       {
         "command": "bkga.addWordToCustomDictionary",
-        "title": "Korean Grammar: 단어를 사용자 사전에 추가"
+        "title": "BKGA (Bareun Korean Grammar): 단어를 사용자 사전에 추가"
       },
       {
         "command": "bkga.removeWordFromCustomDictionary",
-        "title": "Korean Grammar: 단어를 사용자 사전에서 삭제"
+        "title": "BKGA (Bareun Korean Grammar): 단어를 사용자 사전에서 삭제"
       }
     ],
     "keybindings": [
