@@ -54,21 +54,17 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 
 ### Screenshots
 
-#### Inline Diagnostics
-![Inline Diagnostics](./assets/inline-diagnostics.png)
-<!-- TODO: Add screenshot showing underlined errors in markdown -->
-
 #### Hover Information
 ![Hover Information](./assets/bkga_show.png)
-<!-- TODO: Add screenshot of hover tooltip with error details -->
+
 
 #### User Dictionary
 ![Quick Fix](./assets/bkga_dictionary.png)
-<!-- TODO: Add screenshot of quick fix menu -->
+
 
 #### Problem Terminal
 ![Fix Selection](./assets/bkga_show.png)
-<!-- TODO: Add screenshot of selecting and fixing multiple lines at once -->
+
 
 ## Keyboard Shortcuts
 
