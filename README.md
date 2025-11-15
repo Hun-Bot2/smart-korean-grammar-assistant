@@ -106,7 +106,7 @@ Bareun의 [Custom Dictionary](https://bareun.ai/custom-dict) / [Cloud API 안내
 
 - **Issues**: [GitHub Issues](https://github.com/Hun-Bot2/smart-korean-grammar-assistant/issues)
 - **Repository**: [GitHub](https://github.com/Hun-Bot2/smart-korean-grammar-assistant)
-- **Email**: [surtrcode@gmail.com](mailto:surtrcode@gmail.com)
+- **Email**: [contact@hun-bot.dev](mailto:contact@hun-bot.dev)
 
 ## License
 
