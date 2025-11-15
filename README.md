@@ -49,6 +49,7 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 - **마크다운 지원**: Bareun API가 코드 블록과 인라인 코드를 자동으로 분석에서 제외합니다.
 
 ### 30초 사용 가이드
+![Bareun_HowToUse_Com](https://github.com/user-attachments/assets/a3f25046-45e5-4577-931c-545bd7979b0e)
 
 
 ### Screenshots
