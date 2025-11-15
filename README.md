@@ -1,7 +1,7 @@
 # Bareun Korean Grammar Assistant (BKGA)
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Hun-Bot2/smart-korean-grammer-assistant/releases)
-[![Release](https://img.shields.io/github/v/release/Hun-Bot2/smart-korean-grammer-assistant)](https://github.com/Hun-Bot2/smart-korean-grammer-assistant/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Hun-Bot2/smart-korean-grammar-assistant/releases)
+[![Release](https://img.shields.io/github/v/release/Hun-Bot2/smart-korean-grammar-assistant)](https://github.com/Hun-Bot2/smart-korean-grammar-assistant/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Bareun NLP 엔진을 사용해 마크다운 문서의 한국어 문법·맞춤법·띄어쓰기를 검사하고, 인라인 진단, 호버 설명, 빠른 수정을 제공합니다.
@@ -48,6 +48,9 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 - **키보드 단축키**: 토글/분석/수정 기능에 빠르게 접근할 수 있습니다.
 - **마크다운 지원**: Bareun API가 코드 블록과 인라인 코드를 자동으로 분석에서 제외합니다.
 
+### 30초 사용 가이드
+
+
 ### Screenshots
 
 #### Inline Diagnostics
@@ -55,15 +58,15 @@ code --install-extension smart-korean-grammar-assistant-1.0.0.vsix
 <!-- TODO: Add screenshot showing underlined errors in markdown -->
 
 #### Hover Information
-![Hover Information](./assets/hover-info.png)
+![Hover Information](./assets/bkga_show.png)
 <!-- TODO: Add screenshot of hover tooltip with error details -->
 
-#### Quick Fix
-![Quick Fix](./assets/quick-fix.png)
+#### User Dictionary
+![Quick Fix](./assets/bkga_dictionary.png)
 <!-- TODO: Add screenshot of quick fix menu -->
 
-#### Fix Selection (Auto-fix multiple lines)
-![Fix Selection](./assets/fix-selection.png)
+#### Problem Terminal
+![Fix Selection](./assets/bkga_show.png)
 <!-- TODO: Add screenshot of selecting and fixing multiple lines at once -->
 
 ## Keyboard Shortcuts
@@ -152,8 +155,8 @@ npm test
 
 피드백,버그 리포트, 기능 제안, 풀 리퀘스트를 환영합니다!
 
-- **Issues**: [GitHub Issues](https://github.com/Hun-Bot2/smart-korean-grammer-assistant/issues)
-- **Repository**: [GitHub](https://github.com/Hun-Bot2/smart-korean-grammer-assistant)
+- **Issues**: [GitHub Issues](https://github.com/Hun-Bot2/smart-korean-grammar-assistant/issues)
+- **Repository**: [GitHub](https://github.com/Hun-Bot2/smart-korean-grammar-assistant)
 - **Email**: [surtrcode@gmail.com](mailto:surtrcode@gmail.com)
 
 ## License
