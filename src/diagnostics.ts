@@ -1,12 +1,16 @@
 import * as vscode from 'vscode';
 import { BareunClient, BareunIssue } from './bareunClient';
 import { AnalysisState } from './status';
+import { DEFAULT_BAREUN_REVISION_ENDPOINT } from './constants';
+
+type LocalModeReason = 'missingApiKey' | 'requestFailed';
 
 export type StatusCallback = (state: AnalysisState, issueCount?: number) => void;
 
 export class DiagnosticsManager {
   private collection: vscode.DiagnosticCollection;
   private statusCallback?: StatusCallback;
+  private localModeWarningReason?: LocalModeReason;
 
   constructor(statusCallback?: StatusCallback) {
     this.collection = vscode.languages.createDiagnosticCollection('bkga');
@@ -39,23 +43,33 @@ export class DiagnosticsManager {
     this.statusCallback?.('analyzing');
 
     const config = vscode.workspace.getConfiguration();
-    const endpoint = config.get<string>('bkga.bareun.endpoint') || '';
-    const apiKey = config.get<string>('bkga.bareun.apiKey') || undefined;
+    const configuredEndpoint = config.get<string>('bkga.bareun.endpoint')?.trim() || '';
+    const endpoint = configuredEndpoint || DEFAULT_BAREUN_REVISION_ENDPOINT;
+    const apiKey = config.get<string>('bkga.bareun.apiKey')?.trim() || undefined;
     const ignoreEnglishInMarkdown = config.get<boolean>('bkga.ignoreEnglishInMarkdown', true);
     const docVersion = doc.version;
     const fullText = doc.getText();
 
     let issues: BareunIssue[] = [];
-    if (endpoint) {
+    let usedBareun = false;
+    let fallbackReason: LocalModeReason | undefined;
+    if (apiKey) {
       try {
         issues = await BareunClient.analyze(endpoint, apiKey, fullText);
+        usedBareun = true;
       } catch (err) {
-        // fall back to local heuristics
-        this.statusCallback?.('error');
+        fallbackReason = 'requestFailed';
         issues = this.localHeuristics(fullText);
       }
     } else {
+      fallbackReason = 'missingApiKey';
       issues = this.localHeuristics(fullText);
+    }
+
+    if (fallbackReason) {
+      this.notifyLocalMode(fallbackReason);
+    } else {
+      this.clearLocalModeWarning();
     }
 
     if (doc.isClosed || doc.version !== docVersion) {
@@ -103,7 +117,8 @@ export class DiagnosticsManager {
       .filter((diag): diag is vscode.Diagnostic => Boolean(diag));
 
     this.collection.set(doc.uri, diagnostics);
-    this.statusCallback?.('success', diagnostics.length);
+    const finalState: AnalysisState = usedBareun ? 'success' : 'fallback';
+    this.statusCallback?.(finalState, diagnostics.length);
   }
 
   private mapSeverity(s?: string): vscode.DiagnosticSeverity {
@@ -289,5 +304,26 @@ export class DiagnosticsManager {
     }
     const validPart = /^[가-힣0-9\s·\-]+$/;
     return parts.every((part) => validPart.test(part));
+  }
+
+  private notifyLocalMode(reason: LocalModeReason) {
+    if (this.localModeWarningReason === reason) {
+      return;
+    }
+    this.localModeWarningReason = reason;
+    const action = '설정 열기';
+    const message =
+      reason === 'missingApiKey'
+        ? 'BKGA: Bareun API 키가 설정되지 않아 로컬 검사만 수행 중입니다.'
+        : 'BKGA: Bareun API 호출에 실패하여 로컬 검사만 수행 중입니다. API 키/엔드포인트를 확인하세요.';
+    vscode.window.showWarningMessage(message, action).then((selection) => {
+      if (selection === action) {
+        vscode.commands.executeCommand('bkga.openSettings');
+      }
+    });
+  }
+
+  private clearLocalModeWarning() {
+    this.localModeWarningReason = undefined;
   }
 }
