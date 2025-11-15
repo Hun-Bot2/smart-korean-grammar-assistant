@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DICT_CATEGORY_LABELS, DictKey } from './customDictionaryMeta';
+import { DEFAULT_BAREUN_CUSTOM_DICTIONARY_ENDPOINT } from './constants';
 
 export class CustomDictionaryPanel {
   private static currentPanel: CustomDictionaryPanel | undefined;
@@ -42,7 +43,10 @@ export class CustomDictionaryPanel {
     const cfg = vscode.workspace.getConfiguration('bkga');
     const cd = cfg.get<any>('customDictionary') || {};
     const domainName: string = cd.domainName || '';
-    const endpoint: string = cd.endpoint || '';
+    const rawEndpoint: string = (cd.endpoint || '').trim();
+    const endpoint =
+      rawEndpoint || DEFAULT_BAREUN_CUSTOM_DICTIONARY_ENDPOINT;
+    const usingDefault = !rawEndpoint;
     const enabled = Boolean(cd.enabled);
     const categories = (Object.keys(DICT_CATEGORY_LABELS) as DictKey[]).map((key) => {
       const entries: string[] = cd[key] || [];
@@ -151,7 +155,7 @@ export class CustomDictionaryPanel {
       <h1>사용자 사전 (${enabled ? '활성화됨' : '비활성화됨'})</h1>
       <div class="status">
         <span>도메인: <code>${domainName || '미설정'}</code></span>
-        <span>엔드포인트: <code>${endpoint ? '설정됨' : '미설정'}</code></span>
+        <span>엔드포인트: <code>${endpoint}</code>${usingDefault ? ' (기본)' : ''}</span>
         <span>총 단어: ${categories.reduce((sum, cat) => sum + (cat.items?.length || 0), 0)}</span>
       </div>
     </div>

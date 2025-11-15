@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { BareunClient, UpdateCustomDictionaryRequest } from './bareunClient';
 import { DictKey } from './customDictionaryMeta';
+import { DEFAULT_BAREUN_CUSTOM_DICTIONARY_ENDPOINT } from './constants';
 
 interface CustomDictionaryConfig {
   enabled: boolean;
@@ -105,7 +106,9 @@ export class CustomDictionaryService {
     const config = vscode.workspace.getConfiguration('bkga');
     return {
       enabled: config.get<boolean>('customDictionary.enabled', false),
-      endpoint: config.get<string>('customDictionary.endpoint', '').trim(),
+      endpoint:
+        config.get<string>('customDictionary.endpoint', '')?.trim() ||
+        DEFAULT_BAREUN_CUSTOM_DICTIONARY_ENDPOINT,
       domainName: config.get<string>('customDictionary.domainName', '').trim(),
       npSet: config.get<string[]>('customDictionary.npSet', []),
       cpSet: config.get<string[]>('customDictionary.cpSet', []),

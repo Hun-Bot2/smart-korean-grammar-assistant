@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export type AnalysisState = 'idle' | 'analyzing' | 'success' | 'error';
+export type AnalysisState = 'idle' | 'analyzing' | 'success' | 'error' | 'fallback';
 
 /**
  * Manages the status bar item showing analysis state and issue count.
@@ -63,6 +63,13 @@ export class StatusBarManager {
           this.statusBarItem.tooltip = '문법/맞춤법 문제가 발견되지 않았습니다';
           this.statusBarItem.backgroundColor = undefined;
         }
+        break;
+
+      case 'fallback':
+        this.statusBarItem.text = '$(shield) BKGA: 로컬 검사';
+        this.statusBarItem.tooltip =
+          'Bareun API 응답이 없어 로컬 휴리스틱만 실행 중입니다. 설정에서 API 키/엔드포인트를 확인하세요.';
+        this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
         break;
 
       case 'idle':

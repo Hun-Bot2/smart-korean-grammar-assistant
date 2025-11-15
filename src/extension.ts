@@ -8,6 +8,7 @@ import { applyDecorations, clearDecorations, disposeDecorations } from './decora
 import { CustomDictionaryService } from './customDictionary';
 import { DictKey } from './customDictionaryMeta';
 import { CustomDictionaryPanel } from './customDictionaryPanel';
+import { DEFAULT_BAREUN_REVISION_ENDPOINT } from './constants';
 
 let diagnosticsManager: DiagnosticsManager | undefined;
 let statusBarManager: StatusBarManager | undefined;
@@ -155,17 +156,19 @@ export async function activate(context: vscode.ExtensionContext) {
       const doc = editor.document;
       const diagnostics = diagnosticsManager?.getDiagnostics(doc.uri) || [];
       const cfg = vscode.workspace.getConfiguration('bkga');
-      const endpoint = cfg.get<string>('bareun.endpoint') || '';
-      const apiKey = cfg.get<string>('bareun.apiKey') || '';
+      const endpointSetting = cfg.get<string>('bareun.endpoint')?.trim() || '';
+      const endpoint = endpointSetting || DEFAULT_BAREUN_REVISION_ENDPOINT;
+      const apiKey = cfg.get<string>('bareun.apiKey')?.trim() || '';
       const enabled = cfg.get<boolean>('enabled', true);
+      const endpointStatus = endpointSetting ? 'custom' : 'default';
 
-      vscode.window.showInformationMessage(`BKGA debug: issues=${diagnostics.length}, endpoint=${endpoint ? 'set' : 'unset'}, apiKey=${apiKey ? 'set' : 'unset'}, enabled=${enabled}`);
+      vscode.window.showInformationMessage(`BKGA debug: issues=${diagnostics.length}, endpoint=${endpointStatus}, apiKey=${apiKey ? 'set' : 'unset'}, enabled=${enabled}`);
 
       outputChannel?.appendLine(`=== BKGA Debug (${new Date().toLocaleString()}) ===`);
       outputChannel?.appendLine(`Document: ${doc.uri.toString()}`);
       outputChannel?.appendLine(`Language: ${doc.languageId}`);
       outputChannel?.appendLine(`Enabled: ${enabled}`);
-      outputChannel?.appendLine(`Endpoint: ${endpoint ? endpoint : '<unset>'}`);
+      outputChannel?.appendLine(`Endpoint: ${endpoint}${endpointSetting ? '' : ' (default)'}`);
       outputChannel?.appendLine(`API Key: ${apiKey ? '<set>' : '<unset>'}`);
       outputChannel?.appendLine(`Issues: ${diagnostics.length}`);
       diagnostics.forEach((d) => {
@@ -215,11 +218,13 @@ export async function activate(context: vscode.ExtensionContext) {
       }
 
       const selectedText = editor.document.getText(selection);
-      const endpoint = vscode.workspace.getConfiguration().get<string>('bkga.bareun.endpoint') || '';
-      const apiKey = vscode.workspace.getConfiguration().get<string>('bkga.bareun.apiKey') || undefined;
+      const cfg = vscode.workspace.getConfiguration('bkga');
+      const endpointSetting = cfg.get<string>('bareun.endpoint')?.trim() || '';
+      const endpoint = endpointSetting || DEFAULT_BAREUN_REVISION_ENDPOINT;
+      const apiKey = cfg.get<string>('bareun.apiKey')?.trim() || undefined;
 
-      if (!endpoint || !apiKey) {
-        vscode.window.showWarningMessage('Bareun API 설정이 필요합니다.');
+      if (!apiKey) {
+        vscode.window.showWarningMessage('Bareun API 키가 필요합니다.');
         return;
       }
 

@@ -86,7 +86,7 @@ export class BareunClient {
             out.appendLine(`Bareun response body: ${data}`);
 
             if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
-              resolve([]);
+              reject(new Error(`Bareun HTTP ${res.statusCode ?? 'unknown'}`));
               return;
             }
 
@@ -117,27 +117,28 @@ export class BareunClient {
               resolve(issues);
             } catch (err) {
               out.appendLine(`Failed to parse Bareun response: ${String(err)}`);
-              resolve([]);
+              reject(err instanceof Error ? err : new Error(String(err)));
             }
           });
         });
 
         req.on('error', (e) => {
           out.appendLine(`Bareun request error: ${String(e)}`);
-          resolve([]);
+          reject(e instanceof Error ? e : new Error(String(e)));
         });
 
         req.setTimeout(5000, () => {
           req.destroy();
           out.appendLine('Bareun request timeout');
-          resolve([]);
+          reject(new Error('Bareun request timeout'));
         });
 
         req.write(payload);
         req.end();
       });
     } catch (err) {
-      return [];
+      out.appendLine(`Bareun analyze aborted: ${String(err)}`);
+      throw err instanceof Error ? err : new Error(String(err));
     }
   }
 
