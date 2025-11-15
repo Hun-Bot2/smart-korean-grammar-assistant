@@ -1,12 +1,12 @@
 {
   "name": "bareun-korean-grammar-assistant",
-  "displayName": "Bareun Korean Grammar Assistant",
+  "displayName": "바른 한국어 문법 검사기 & 교정기",
   "publisher": "Hun-Bot",
   "version": "1.0.0",
   "engines": {
     "vscode": "^1.75.0"
   },
-  "description": "Real-time Korean grammar, spelling, and spacing checker for Markdown files using Bareun NLP API",
+  "description": "바른 NLP 기반의 스마트 한국어 문법 검사기 확장 기능입니다. Markdown 문서의 맞춤법, 띄어쓰기, 표준어, 통계적 교정 진단을 제공합니다.",
   "main": "./out/extension.js",
   "icon": "BKGA-Small.png",
   "galleryBanner": {
@@ -37,9 +37,6 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.0.0"
   },
-  "dependencies": {
-    "code": "^5.2.4"
-  },
   "contributes": {
     "configuration": {
       "title": "Bareun Korean Grammar Assistant",
@@ -64,7 +61,9 @@
           "items": {
             "type": "string"
           },
-          "default": ["**/*.md"],
+          "default": [
+            "**/*.md"
+          ],
           "description": "Glob patterns for files to analyze (e.g., ['content/blog/**/*.md']). Empty array means all .md files."
         },
         "bkga.ignoreEnglishInMarkdown": {
