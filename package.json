@@ -2,7 +2,7 @@
   "name": "bareun-korean-grammar-assistant",
   "displayName": "바른 한국어 문법 검사기 & 교정기",
   "publisher": "Hun-Bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.75.0"
   },
