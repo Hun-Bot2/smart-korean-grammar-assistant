@@ -1,8 +1,13 @@
 # Bareun Korean Grammar Assistant (BKGA)
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Hun-Bot2/smart-korean-grammar-assistant/releases)
+## 📦 Status
+
 [![Release](https://img.shields.io/github/v/release/Hun-Bot2/smart-korean-grammar-assistant)](https://github.com/Hun-Bot2/smart-korean-grammar-assistant/releases)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/Hun-Bot.bareun-korean-grammar-assistant)](https://marketplace.visualstudio.com/items?itemName=Hun-Bot.bareun-korean-grammar-assistant)
+[![Downloads](https://img.shields.io/visual-studio-marketplace/d/Hun-Bot.bareun-korean-grammar-assistant)](https://marketplace.visualstudio.com/items?itemName=Hun-Bot.bareun-korean-grammar-assistant)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/Hun-Bot.bareun-korean-grammar-assistant)](https://marketplace.visualstudio.com/items?itemName=Hun-Bot.bareun-korean-grammar-assistant)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 
 Bareun NLP 엔진을 사용해 마크다운 문서의 한국어 문법·맞춤법·띄어쓰기를 검사하고, 인라인 진단, 호버 설명, 빠른 수정을 제공합니다.
 
