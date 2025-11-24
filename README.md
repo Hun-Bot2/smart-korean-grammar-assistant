@@ -2,7 +2,6 @@
 
 [![Release](https://img.shields.io/github/v/release/Hun-Bot2/smart-korean-grammar-assistant)](https://github.com/Hun-Bot2/smart-korean-grammar-assistant/releases)
 [![Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/Hun-Bot.bareun-korean-grammar-assistant)](https://marketplace.visualstudio.com/items?itemName=Hun-Bot.bareun-korean-grammar-assistant)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/Hun-Bot.bareun-korean-grammar-assistant)](https://marketplace.visualstudio.com/items?itemName=Hun-Bot.bareun-korean-grammar-assistant)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 
